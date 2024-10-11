@@ -37,10 +37,7 @@ namespace E_commerce.Services
         {
             var users = await _context.Users.ToListAsync();
             var userDTOs = _mapper.Map<IEnumerable<UserDTO>>(users);
-            foreach (var userDto in userDTOs)
-            {
-                Console.WriteLine($"User Retrieved: Id={userDto.UserId}, UserName={userDto.UserName}, Email={userDto.Email}");
-            }
+           
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
@@ -98,14 +95,12 @@ namespace E_commerce.Services
             var existingUser = await _context.Users.FindAsync(id);
             if (existingUser == null)
             {
-                Console.WriteLine("User not found");
                 return null;
             }
 
             if (userDTO.Email.EndsWith("@intimetec.com", StringComparison.OrdinalIgnoreCase) &&
                 existingUser.Email != userDTO.Email)
             {
-                Console.WriteLine("User cannot change email to an Intimetec domain.");
                 return null;
             }
 
@@ -129,7 +124,6 @@ namespace E_commerce.Services
             }
             catch (DbUpdateException ex)
             {
-                Console.Error.WriteLine($"Error occurred while updating user: {ex}");
                 throw;     
             }
 
@@ -141,7 +135,6 @@ namespace E_commerce.Services
             var existingUser = await _context.Users.FindAsync(id);
             if (existingUser == null)
             {
-                Console.WriteLine("User not found");
                 return null;
             }
 
@@ -149,7 +142,6 @@ namespace E_commerce.Services
                 updateUserDTO.Email.EndsWith("@intimetec.com", StringComparison.OrdinalIgnoreCase) &&
                 existingUser.Email != updateUserDTO.Email)
             {
-                Console.WriteLine("User cannot change email to an Intimetec domain.");
                 return null;
             }
 

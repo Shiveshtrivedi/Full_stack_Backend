@@ -1,5 +1,6 @@
 ﻿using E_commerce.DTOs;
 using E_commerce.Models;
+using Razorpay.Api;
 
 namespace E_commerce.Utils
 {
@@ -16,20 +17,19 @@ namespace E_commerce.Utils
 
     public interface IProductServices
     {
-        Task<IEnumerable<Product>> GetAllProductsAsync();
-        Task<Product> CreateProductAsync(ProductDTO productDTO,int userId);
-        Task<List<Product>> AddProductsAsync(List<ProductDTO> productDtos);
-        Task<Product> GetProductByIdAsync(int id);
-        Task<IEnumerable<Product>> GetProductByUserIdAsync(int userId);
-        Task<Product> UpdateProductAsync(ProductDTO productDto,int id);
-        Task<Product> DeleteProductAsync(int id);
+        Task<IEnumerable<E_commerce.Models.Product>> GetAllProductsAsync();
+        Task<E_commerce.Models.Product> CreateProductAsync(ProductDTO productDTO,int userId);
+        Task<List<E_commerce.Models.Product>> AddProductsAsync(List<ProductDTO> productDtos);
+        Task<E_commerce.Models.Product> GetProductByIdAsync(int id);
+        Task<IEnumerable<E_commerce.Models.Product>> GetProductByUserIdAsync(int userId);
+        Task<E_commerce.Models.Product> UpdateProductAsync(ProductDTO productDto,int id);
+        Task<E_commerce.Models.Product> DeleteProductAsync(int id);
     }
 
     public interface ICartServices
     {
         Task<IEnumerable<CartDTO>> GetAllProductsFromCartAsync(int userId);
-        Task<bool> AddProductInCartAsync(int userId, AddCartItemDTO addCartItemDto);
-        //Task<CartDTO> UpdateCartByUserAsync(int userId, UpdateCartItemDTO updatedItemDto);
+        Task<CartDTO[]> AddToCartAsync(int userId, int productId, int quantity);
         Task<List<CartDTO>> UpdateCartByUserAsync(int userId, List<UpdateCartItemDTO> updateCartItemsDto);
         Task<bool> ClearCartItemByUserAsync(int userId);
     }
@@ -38,12 +38,9 @@ namespace E_commerce.Utils
     {
         Task<IEnumerable<OrderDTO>> GetAllOrdersAsync();
         Task<OrderDTO> GetOrderByIdAsync(int orderId);
-        //Task<OrderDTO?> PlaceOrderAsync(CreateOrderDTO orderDTO);
-        Task<int?> PlaceOrderAsync(CreateOrderDTO orderDTO);
-
+        Task<OrderDTO> PlaceOrderAsync(CreateOrderDTO orderDTO);
         Task<IEnumerable<OrderDTO>> GetOrdersByUserIdAsync(int userId);
         Task<IEnumerable<OrderDTO>> UpdateOrderAsync(int orderId, OrderUpdateDTO orderUpdateDTO);
-
     }
 
     public interface IShippingAddressServices
@@ -66,8 +63,6 @@ namespace E_commerce.Utils
     public interface IAuthServices
     {
         Task<bool> SignupAsync(UserDTO userDTO);
-        //Task<UserDTO> LoginAsync(LoginDTO loginDto);
-        //Task<(UserDTO, string token)> LoginAsync(LoginDTO loginDto);
         Task<UserDTO> LoginAsync(LoginDTO loginDto);
 
     }
@@ -99,9 +94,8 @@ namespace E_commerce.Utils
     {
         Task<IEnumerable<InventoryDTO>> GetAllInventoriesAsync();
         Task<InventoryDTO> GetInventoryByProductIdAsync(int productId);
-        //Task<bool> UpdateStockAsync(UpdateStockDTO updateStockDto);
         Task<List<ProductSaleDTO>> UpdateStockAsync(UpdateStockDTO updateStockDto);
-        Task<bool> CreateInventoryAsync(int productId);
+        Task<List<ProductSaleDTO>> CreateInventoryAsync(int productId);
         Task<bool> AdminIncreaseStockAsync(AdminUpdateStockDTO updateStockDto);
     }
 
@@ -113,5 +107,11 @@ namespace E_commerce.Utils
         Task<bool> ClearHistoryAsync(int userId);
 
     }
+
+    public interface IRazorpayService
+    {
+        Task<Razorpay.Api.Order> CreateOrderAsync(decimal amount, string currency = "INR", string receipt = "order_rcptid_11");
+    }
+
 }
 

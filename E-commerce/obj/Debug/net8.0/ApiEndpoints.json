@@ -33,7 +33,7 @@
   },
   {
     "ContainingType": "E_commerce.Controllers.CartController",
-    "Method": "AddCartItem",
+    "Method": "AddToCart",
     "RelativePath": "api/cart/{userId}/addCartItems",
     "HttpMethod": "POST",
     "IsController": true,
@@ -45,7 +45,7 @@
         "IsRequired": true
       },
       {
-        "Name": "addCartItemDto",
+        "Name": "addCartItemDTO",
         "Type": "E_commerce.DTOs.AddCartItemDTO",
         "IsRequired": true
       }
@@ -205,8 +205,24 @@
   },
   {
     "ContainingType": "E_commerce.Controllers.InventoryController",
+    "Method": "CreateInventory",
+    "RelativePath": "api/inventory/{productId}/createInventory",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "productId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "E_commerce.Controllers.InventoryController",
     "Method": "GetInventoryByProductId",
-    "RelativePath": "api/inventory/{productId}",
+    "RelativePath": "api/inventory/{productId}/getInventory",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -231,22 +247,6 @@
   },
   {
     "ContainingType": "E_commerce.Controllers.InventoryController",
-    "Method": "CreateInventory",
-    "RelativePath": "api/inventory/{productId}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "productId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "E_commerce.Controllers.InventoryController",
     "Method": "AdminIncreaseStock",
     "RelativePath": "api/inventory/admin/increase-stock",
     "HttpMethod": "PUT",
@@ -264,7 +264,7 @@
   {
     "ContainingType": "E_commerce.Controllers.InventoryController",
     "Method": "UpdateStock",
-    "RelativePath": "api/inventory/update-stock",
+    "RelativePath": "api/inventory/updateStock",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -351,6 +351,22 @@
       {
         "Name": "userId",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "E_commerce.Controllers.PaymentController",
+    "Method": "CreateOrder",
+    "RelativePath": "api/payment/create-order",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "E_commerce.Controllers.CreateOrderRequest",
         "IsRequired": true
       }
     ],

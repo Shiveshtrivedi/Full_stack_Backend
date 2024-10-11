@@ -13,20 +13,22 @@ namespace E_commerce.Services
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-        public OrderServices(DataContext context, IMapper mapper)
+        private readonly RazorpayService _razorpayService;
+        public OrderServices(DataContext context, IMapper mapper,RazorpayService razorpayService)
         {
             _context = context;
             _mapper = mapper;
+            _razorpayService = razorpayService;
         }
 
         public async Task<IEnumerable<OrderDTO>> GetAllOrdersAsync()
         {
             var orders = await _context.Orders
-                .Include(o => o.User) // Include related User data if needed
-                .Include(o => o.ShippingAddress) // Include Shipping Address if needed
-                .Include(o => o.OrderDetails) // Include Order Details
-                    .ThenInclude(od => od.Product) // Include Product details in Order Details
-                .ToListAsync();
+                .Include(o => o.User)       
+                .Include(o => o.ShippingAddress)      
+                .Include(o => o.OrderDetails)    
+                    .ThenInclude(od => od.Product)       
+                .ToListAsync(); 
 
             return _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDTO>>(orders);
         }
@@ -61,13 +63,6 @@ namespace E_commerce.Services
                 OrderDate = order.OrderDate,
                 Status = order.Status.ToString(),
                 PaymentMethod = order.PaymentMethod,
-                //ShippingAddress = order.ShippingAddress != null ? new ShippingAddressDTO
-                //{
-                //    AddressLine = order.ShippingAddress.AddressLine1 ?? string.Empty,
-                //    City = order.ShippingAddress.City ?? string.Empty,
-                //    State = order.ShippingAddress.State ?? string.Empty,
-                //    ZipCode = order.ShippingAddress.ZipCode 
-                //} : null,
                 OrderDetails = order.OrderDetails.Select(od => new OrderDetailDTO
                 {
                     ProductId = od.ProductId,
@@ -79,22 +74,19 @@ namespace E_commerce.Services
             return orderDto;
         }
 
-
         public async Task<IEnumerable<OrderDTO>> UpdateOrderAsync(int orderId, OrderUpdateDTO orderUpdateDTO)
         {
-            // Find the order by its ID
             var order = await _context.Orders
                 .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Product) // Include related Product data
+                    .ThenInclude(od => od.Product)
                 .Include(o => o.ShippingAddress)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
             if (order == null)
             {
-                return null; // Order not found
+                return null;
             }
 
-            // Update the status if provided in the DTO
             if (!string.IsNullOrEmpty(orderUpdateDTO.Status))
             {
                 if (Enum.TryParse(typeof(OrderStatus), orderUpdateDTO.Status, out var status))
@@ -103,60 +95,89 @@ namespace E_commerce.Services
                 }
                 else
                 {
-                    return null; // Invalid status
+                    return null;
                 }
             }
 
-            // Update the payment method if provided in the DTO
             if (!string.IsNullOrEmpty(orderUpdateDTO.PaymentMethod))
             {
                 order.PaymentMethod = orderUpdateDTO.PaymentMethod;
             }
 
-            // Save changes to the database
-            _context.Orders.Update(order);
+            if (!string.IsNullOrEmpty(orderUpdateDTO.TransctionId))
+            {
+                order.TransctionId = orderUpdateDTO.TransctionId;
+            }
+
+            //await _context.SaveChangesAsync();
+
+            foreach(var orderDetail in order.OrderDetails)
+            {
+                var product = orderDetail.Product;
+
+                var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == product.ProductId);
+                if (inventory != null)
+                {
+                    inventory.StockAvailable -= orderDetail.Quantity;
+                }
+
+                var sale = new Sale
+                {
+                    OrderId = orderId,
+                    UserId = order.UserId,      
+                    StartDate = DateTime.Now,
+                    EndDate = DateTime.Now.AddDays(3),
+                    SaleDate = DateTime.Now,
+                    TotalAmount = orderDetail.Quantity * orderDetail.Price      
+                };
+
+                _context.Sales.Add(sale);
+            }
+
             await _context.SaveChangesAsync();
 
-            // Return all orders that include the updated order, mapped to OrderDTOs
-            var updatedOrders = await _context.Orders
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                .Include(o => o.ShippingAddress)
-                .Where(o => o.OrderId == orderId)
-                .ToListAsync();
+            var updatedOrder = await _context.Orders
+               .Include(o => o.OrderDetails)
+                   .ThenInclude(od => od.Product)
+               .Include(o => o.ShippingAddress)
+               .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
-            return _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDTO>>(updatedOrders);
+            if (updatedOrder == null)
+            {
+                return null;
+            }
+
+
+            return new List<OrderDTO> { _mapper.Map<Order, OrderDTO>(updatedOrder) };
         }
 
 
 
-        public async Task<int?> PlaceOrderAsync(CreateOrderDTO orderDTO)
+
+        public async Task<OrderDTO> PlaceOrderAsync(CreateOrderDTO orderDTO)
         {
             var user = await _context.Users.FindAsync(orderDTO.UserId);
-            //var shippingAddress = await _context.ShippingAddresses.FindAsync(orderDTO.ShippingAddressId);
-            //|| shippingAddress == null
-
-            if (user == null )
+            if (user == null)
             {
-                return null;
+                return null;    
             }
 
             var order = new Order
             {
                 UserId = orderDTO.UserId,
-                //ShippingAddressID = orderDTO.ShippingAddressId,
                 PaymentMethod = orderDTO.PaymentMethod,
                 OrderDate = DateTime.Now,
                 Status = OrderStatus.Pending,
-                OrderDetails = new List<OrderDetail>()
+                OrderDetails = new List<OrderDetail>(),
+
             };
 
-            Console.WriteLine($" order placed are {order.UserId} ,{order.OrderDetails}");
+            decimal totalAmount = 0;    
 
             foreach (var item in orderDTO.Items)
             {
                 var product = await _context.Products.FindAsync(item.ProductId);
-                if (product == null) continue;
+                if (product == null) continue;        
 
                 var orderDetail = new OrderDetail
                 {
@@ -165,16 +186,31 @@ namespace E_commerce.Services
                     Price = item.Price,
                     Order = order
                 };
-                Console.WriteLine($"order detail are {orderDetail}");
 
                 order.OrderDetails.Add(orderDetail);
+                totalAmount += item.Price * item.Quantity;    
             }
+            var apiKey = Environment.GetEnvironmentVariable("RAZORPAY_KEY");
+
+            var razorpayOrder = await _razorpayService.CreateOrderAsync(totalAmount, "INR", order.OrderId.ToString());
+
+
+            if (razorpayOrder == null)
+            {
+                return null;         
+            }
+
+            order.RazorpayOrderId = razorpayOrder["id"].ToString();
+            order.TransctionId = razorpayOrder["transactionId"]?.ToString() ?? ""; 
+
 
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
-            return order.OrderId;
-        }
 
+            var orderDTOResult = _mapper.Map<Order, OrderDTO>(order);
+
+            return orderDTOResult;
+        }
 
     }
 }

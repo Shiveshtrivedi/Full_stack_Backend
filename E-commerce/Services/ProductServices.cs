@@ -60,7 +60,6 @@ namespace E_commerce.Services
 
             foreach (var productDto in productDtos)
             {
-               
                 var product = new Product
                 {
                     ProductName = productDto.ProductName,
@@ -69,33 +68,35 @@ namespace E_commerce.Services
                     Price = productDto.Price,
                     Stock = productDto.Stock,
                     Category = productDto.Category,
-                    UserId = productDto.UserId, 
+                    UserId = productDto.UserId,
                     Rating = productDto.Rating
-
                 };
 
                 products.Add(product);
+            }
+
+            await _context.Products.AddRangeAsync(products);
+            await _context.SaveChangesAsync();      
+
+            foreach (var product in products)
+            {
                 var history = new AdminHistory
                 {
                     ActionType = "Add Product",
                     Details = $"Product '{product.ProductName}' was added.",
                     ActionDate = DateTime.Now,
                     UserId = product.UserId,
-                    ProductId = product.ProductId,
+                    ProductId = product.ProductId,    
                     IsAdminAction = true
                 };
-            await _context.Histories.AddAsync(history);
+
+                await _context.Histories.AddAsync(history);
             }
 
-            await _context.Products.AddRangeAsync(products);
             await _context.SaveChangesAsync();
 
-            
-
-
-            return products; 
+            return products;
         }
-
 
         public async Task<Product> GetProductByIdAsync(int id)
         {
@@ -122,8 +123,7 @@ namespace E_commerce.Services
         {
             var findProduct = await _context.Products.FindAsync(id);
             var existingUser = await _context.Users.FindAsync(productDto.UserId);
-            Console.WriteLine("existing user "+existingUser,findProduct);
-            Console.WriteLine("existing user "+findProduct);
+
             if (findProduct == null || existingUser == null)
                 return null;
 
@@ -133,6 +133,13 @@ namespace E_commerce.Services
             findProduct.Price = productDto.Price;
             findProduct.Stock = productDto.Stock;
             findProduct.Category = productDto.Category;
+
+            var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == id);
+
+            if(inventory!=null)
+            {
+                inventory.StockAvailable = productDto.Stock;
+            }
 
             await _context.SaveChangesAsync();
             return findProduct;
@@ -144,6 +151,12 @@ namespace E_commerce.Services
             
             if (findProduct == null)
                 return null;
+
+            var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == id);
+            if (inventory != null)
+            {
+                _context.Inventories.Remove(inventory);         
+            }
 
             _context.Products.Remove(findProduct);
             await _context.SaveChangesAsync();

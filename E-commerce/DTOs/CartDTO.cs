@@ -7,7 +7,7 @@
         public int UserId { get; set; }
 
         public List<CartItemDTO> Items { get; set; } = new List<CartItemDTO>();
-        public decimal TotalPrice { get; set; }
+        public decimal? TotalPrice { get; set; }
         public int Quantity { get; set; }
     }
 
@@ -31,7 +31,6 @@
     {
         public int Quantity { get; set; }
         public int ProductId { get; set; }
-        //public decimal price { get; set; }
     }
 
    

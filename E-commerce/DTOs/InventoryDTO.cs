@@ -4,15 +4,10 @@
     {
         public int ProductId { get; set; }
         public string ProductName { get; set; } = string.Empty;
-        public int StockAvailable { get; set; } // Changed from Stock to StockAvailable
-        public int StockSold { get; set; } // Added StockSold property
+        public int StockAvailable { get; set; }      
+        public int StockSold { get; set; }    
     }
 
-    //public class UpdateStockDTO
-    //{
-    //    public int ProductId { get; set; }
-    //    public int QuantitySold { get; set; }
-    //}
     public class UpdateStockDTO
     {
         public List<ProductSaleDTO> Products { get; set; } = new List<ProductSaleDTO>();

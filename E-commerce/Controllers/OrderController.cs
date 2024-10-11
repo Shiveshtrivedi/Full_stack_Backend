@@ -49,20 +49,21 @@ namespace E_commerce.Controllers
         [HttpPost("placeOrder")]
         public async Task<IActionResult> PlaceOrder([FromBody] CreateOrderDTO orderDTO)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var orderId = await _orderServices.PlaceOrderAsync(orderDTO);
+            var orderResult = await _orderServices.PlaceOrderAsync(orderDTO);
 
-            if(orderId == null)
+            if (orderResult == null )         
             {
-                return BadRequest("Unable to place the order");
+                return BadRequest(new { message = "Unable to place the order" });
             }
 
-            return Ok(new { orderId });
+            return Ok(orderResult);      
         }
+
 
         [HttpPut("{orderId}/updateStatus")]
         public async Task<IActionResult> UpdateOrder(int orderId, [FromBody] OrderUpdateDTO orderUpdateDTO)
@@ -74,10 +75,7 @@ namespace E_commerce.Controllers
                 return BadRequest(new { message = "Failed to update the order" });
             }
 
-            return Ok(updatedOrder); // Return the updated OrderDTO
+            return Ok(updatedOrder);       
         }
-
-
-
     }
 }

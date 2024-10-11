@@ -140,3 +140,7 @@ C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\BCr
 C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\package-lock.json
 C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\package.json
+C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\Newtonsoft.Json.dll
+C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\BouncyCastle.Crypto.dll
+C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\Razorpay.dll
+C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\Controllers\ProductController.cs

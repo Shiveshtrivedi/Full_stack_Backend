@@ -2,3 +2,7 @@
 .git
 ./E-commerce
 E-commerce.sln
+/E-commerce/bin
+/E-commerce/node_modules
+/E-commerce/obj
+/E-commerce/Properties

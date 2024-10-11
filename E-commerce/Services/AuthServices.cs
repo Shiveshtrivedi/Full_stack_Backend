@@ -86,47 +86,15 @@ namespace E_commerce.Services
             }
         }
 
-        //public async Task<UserDTO> LoginAsync(LoginDTO loginDto)
-        //{
-        //    if (string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
-        //    {
-        //        throw new ArgumentException("Email and password must be provided.");
-        //    }
-
-        //    var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == loginDto.Email);
-
-        //    if (user == null)
-        //    {
-        //        throw new UnauthorizedAccessException("Invalid email or password.");
-        //    }
-
-        //    bool isPasswordValid = PasswordHasher.VerifyPassword(loginDto.Password, user.Password);
-
-        //    if (!isPasswordValid)
-        //    {
-        //        throw new UnauthorizedAccessException("Invalid email or password.");
-        //    }
-
-        //    var userDto = _mapper.Map<UserDTO>(user);
-
-        //    var token = GenerateJwtToken(user);
-
-        //    userDto.Token = token;
-
-        //    return userDto;
-        //}
-
         public async Task<UserDTO> LoginAsync(LoginDTO loginDto)
         {
             try
             {
-                // Check for null or empty credentials
                 if (string.IsNullOrEmpty(loginDto.Email) || string.IsNullOrEmpty(loginDto.Password))
                 {
                     throw new ArgumentException("Email and password must be provided.");
                 }
 
-                // Fetch the user from the database
                 var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == loginDto.Email);
 
                 if (user == null)
@@ -134,7 +102,6 @@ namespace E_commerce.Services
                     throw new UnauthorizedAccessException("Invalid email or password.");
                 }
 
-                // Verify the password
                 bool isPasswordValid = PasswordHasher.VerifyPassword(loginDto.Password, user.Password);
 
                 if (!isPasswordValid)
@@ -143,7 +110,6 @@ namespace E_commerce.Services
                     throw new UnauthorizedAccessException("Invalid email or password.");
                 }
 
-                // Map user to DTO and generate token
                 var userDto = _mapper.Map<UserDTO>(user);
                 var token = GenerateJwtToken(user);
                 userDto.Token = token;
@@ -153,7 +119,7 @@ namespace E_commerce.Services
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"Login error: {ex.Message}");
-                throw; // Re-throw for further handling
+                throw;     
             }
         }
 

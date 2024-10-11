@@ -27,6 +27,10 @@ namespace E_commerce.Models
         public ShippingAddress? ShippingAddress { get; set; }
         public string? PaymentMethod { get; set; } = string.Empty;
 
+        public string RazorpayOrderId { get; set; }
+        public string? TransctionId { get; set; 
+        }
+
     }
 
     public class OrderDetail

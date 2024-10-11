@@ -49,7 +49,6 @@ namespace E_commerce.Services
                 ZipCode = shippingAddressDto.ZipCode,
                 Country = shippingAddressDto.Country
             };
-            Console.WriteLine($"shipping address ${shippingAddress.UserId} and ${shippingAddress.AddressLine1}");
 
             _context.ShippingAddresses.Add(shippingAddress);
             await _context.SaveChangesAsync();
@@ -84,7 +83,6 @@ namespace E_commerce.Services
             if (address == null)
                 return false;
 
-            Console.WriteLine($"address item checking {address}");
             _context.ShippingAddresses.RemoveRange(address);
             await _context.SaveChangesAsync();
 
@@ -93,10 +91,7 @@ namespace E_commerce.Services
 
         public async Task<bool> DeleteAddressById(int shippingAddressId)
         {
-            var address = await _context.ShippingAddresses.FirstOrDefaultAsync(x => x.ShippingAddressID == shippingAddressId);
-
-            Console.WriteLine($"addresses ${address} ");
-            
+            var address = await _context.ShippingAddresses.FirstOrDefaultAsync(x => x.ShippingAddressID == shippingAddressId);            
             if (address == null)
                 return false;
              _context.ShippingAddresses.Remove(address);

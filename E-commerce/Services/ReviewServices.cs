@@ -62,7 +62,6 @@ namespace E_commerce.Services
                 Comment = reviewDto.Comment
             };
 
-            Console.WriteLine($"review {review}");
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
 
@@ -70,8 +69,6 @@ namespace E_commerce.Services
 
             if(user!=null)
             reviewDto.UserName = user.UserName;
-
-            Console.WriteLine($"review dto username {reviewDto.UserName}");
 
             return reviewDto;
         }

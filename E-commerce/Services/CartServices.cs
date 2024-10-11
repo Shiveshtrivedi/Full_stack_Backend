@@ -49,40 +49,62 @@ namespace E_commerce.Services
             return new List<CartDTO> { cartDto};
 
         }
-        public async Task<bool> AddProductInCartAsync(int userId,AddCartItemDTO addCartItemDto)
+
+        public async Task<CartDTO[]> AddToCartAsync(int userId, int productId, int quantity)
         {
             var cart = await _context.Carts
-                                           .Include(c => c.Items)
-                                           .FirstOrDefaultAsync(c=>c.UserId == userId);
+                                  .Include(c => c.Items)
+                                  .ThenInclude(ci => ci.Product)
+                                  .FirstOrDefaultAsync(c => c.UserId == userId);
 
-            Console.WriteLine($"cart values {cart}");
-            if(cart == null) 
+            if (cart == null)
             {
-                cart = new Cart {UserId = userId,Items = new List<CartItem>() };
-                _context.Carts.Add(cart);   
-            
+                cart = new Cart { UserId = userId, Items = new List<CartItem>() };
+                _context.Carts.Add(cart);
             }
 
-            var existingItem = cart.Items.FirstOrDefault(ci=>ci.ProductId==addCartItemDto.ProductId);
-            Console.WriteLine($"existing item {existingItem}");
-            if (existingItem != null)
+            var existingCartItem = cart.Items.FirstOrDefault(ci => ci.ProductId == productId);
+
+            if (existingCartItem != null)
             {
-                existingItem.Quantity += addCartItemDto.Quantity;
+                existingCartItem.Quantity += quantity;
             }
             else
             {
-                var cartItem = new CartItem
+                var product = await _context.Products.FindAsync(productId);
+                if (product == null)
                 {
-                    ProductId = addCartItemDto.ProductId,
-                    Quantity = addCartItemDto.Quantity,
-                    CartId = cart.CartId
+                    throw new Exception("Product not found");
+                }
+
+                var newCartItem = new CartItem
+                {
+                    ProductId = productId,
+                    Quantity = quantity,
+                    Product = product       
                 };
-                Console.WriteLine($"cart item {cartItem}");
-                cart.Items.Add(cartItem);
+                cart.Items.Add(newCartItem);
             }
-            return await _context.SaveChangesAsync()>0;
-            
+
+            await _context.SaveChangesAsync();
+
+            var cartDto = _mapper.Map<CartDTO>(cart);
+            cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
+            foreach (var item in cartDto.Items)
+            {
+                var product = cart.Items.FirstOrDefault(ci => ci.ProductId == item.ProductId)?.Product;
+                if (product != null)
+                {
+                    item.ImageUrl = product.Image;
+                    item.ProductName = product.ProductName;
+                    item.Price = product.Price;
+                }
+            }
+            cartDto.Quantity = cart.Items.Sum(ci => ci.Quantity);
+
+            return new CartDTO[] {cartDto};
         }
+
 
         public async Task<List<CartDTO>> UpdateCartByUserAsync(int userId, List<UpdateCartItemDTO> updateCartItemsDto)
         {
@@ -113,7 +135,6 @@ namespace E_commerce.Services
 
             await _context.SaveChangesAsync();
 
-            // Create a CartDTO to return
             var cartDto = new CartDTO
             {
                 CartId = cart.CartId,
@@ -131,56 +152,8 @@ namespace E_commerce.Services
             cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
             cartDto.Quantity = cart.Items.Sum(ci => ci.Quantity);
 
-            // Return a list containing the updated CartDTO
             return new List<CartDTO> { cartDto };
         }
-
-        //public async Task<CartDTO> UpdateCartByUserAsync(int userId, UpdateCartItemDTO updateCartItemDto)
-        //{
-
-        //    var cart = await _context.Carts
-        //                            .Include(c => c.Items)
-        //                            .ThenInclude(ci => ci.Product)
-        //                            .FirstOrDefaultAsync(c => c.UserId == userId);
-
-
-        //    if (cart == null)
-        //        throw new Exception("Cart not found");
-
-
-        //    var cartItem = cart.Items.FirstOrDefault(item => item.ProductId == updateCartItemDto.ProductId);
-
-        //    if (cartItem == null)
-        //        throw new Exception("Cart item not found");
-
-
-
-        //    if (updateCartItemDto.Quantity > 0)
-        //    {
-        //        cartItem.Quantity = updateCartItemDto.Quantity;
-        //    }
-        //    else
-        //    {
-        //        _context.CartItems.Remove(cartItem);
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //    var cartDto = _mapper.Map<CartDTO>(cart);
-        //    cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price); // Update total price
-
-        //    foreach (var item in cartDto.Items)
-        //    {
-        //        var product = cart.Items.FirstOrDefault(ci => ci.ProductId == item.ProductId)?.Product;
-        //        if (product != null)
-        //        {
-        //            item.ImageUrl = product.Image;
-        //            item.ProductName = product.ProductName;
-        //            item.Price = product.Price;
-        //        }
-        //    }
-
-        //    return cartDto;
-        //}
 
         public async Task<bool> ClearCartItemByUserAsync(int userId)
         {

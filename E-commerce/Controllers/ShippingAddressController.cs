@@ -33,7 +33,6 @@ namespace E_commerce.Controllers
         public async Task<ActionResult<ShippingAddressDTO>> AddShippingAddress([FromBody] ShippingAddressDTO shippingAddressDto)
         {
             var result = await _shippingAddressServices.AddShippingAddressAsync(shippingAddressDto);
-            Console.WriteLine($"result is {result}");
             return Ok(CreatedAtAction(nameof(GetShippingAddresses), new { id = result.ShippingAddressID }, result));
         }
 

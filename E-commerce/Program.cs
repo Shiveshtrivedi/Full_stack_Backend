@@ -3,8 +3,10 @@ using E_commerce.Services;
 using E_commerce.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using E_commerce.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,7 @@ builder.Services.AddScoped<ISalesService, SalesService>();
 builder.Services.AddScoped<IRevenueService, RevenueService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IAdminHistoryService, AdminHistoryService>();
+builder.Services.AddScoped<IRazorpayService, RazorpayService>();
 
 builder.Services.AddCors(options =>
 {
@@ -61,6 +64,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+
+builder.Services.Configure<RazorpayConfig>(builder.Configuration.GetSection("RazorpayConfig"));
+
+builder.Services.AddSingleton<RazorpayService>();
+
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -70,6 +79,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+
 
 app.UseHttpsRedirection();
 

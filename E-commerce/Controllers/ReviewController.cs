@@ -46,22 +46,18 @@ namespace E_commerce.Controllers
 
         private int GetCurrentUserId()
         {
-            // Assuming you're storing user ID in a claim or similar storage
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdClaim))
             {
-                // Handle the case where the user ID is null or empty
                 throw new ArgumentNullException(nameof(userIdClaim), "User ID cannot be null or empty.");
             }
 
-            // Attempt to parse the user ID to an integer
             if (int.TryParse(userIdClaim, out int userId))
             {
-                return userId; // Return the parsed user ID
+                return userId;      
             }
 
-            // If parsing fails, you can throw an exception or return a default value
             throw new FormatException("User ID format is invalid.");
         }
 
@@ -71,7 +67,6 @@ namespace E_commerce.Controllers
         {
             int currentUserId = GetCurrentUserId();
 
-                Console.WriteLine("current user id "+currentUserId);
             try
             {
 

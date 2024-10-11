@@ -1,4 +1,5 @@
 ﻿using E_commerce.DTOs;
+using E_commerce.Services;
 using E_commerce.Utils;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +19,7 @@ namespace E_commerce.Controllers
         public async Task<IActionResult> GetCartItem(int userId)
          {
             var cartItem = await _cartServices.GetAllProductsFromCartAsync(userId);
-            Console.WriteLine($"cart item {cartItem}");
+
             if (cartItem == null || !cartItem.Any())  
             {
                 return NotFound(new { message = "Cart is empty or user does not exist." });
@@ -27,16 +28,26 @@ namespace E_commerce.Controllers
             return Ok(cartItem);
         }
 
-        [HttpPost("{userId}/addCartItems")]
-        public async Task<IActionResult> AddCartItem(int userId, [FromBody] AddCartItemDTO addCartItemDto)
-        {
-            var result = await _cartServices.AddProductInCartAsync(userId, addCartItemDto);
-            if(result)
-            {
-                return Ok(new { Message = "Item added to cart successfully" });
-            }
 
-            return BadRequest(new { Message = "Failed to add item in cart" });
+
+        [HttpPost("{userId}/addCartItems")]
+        public async Task<IActionResult> AddToCart(int userId, [FromBody] AddCartItemDTO addCartItemDTO)
+        {
+            try
+            {
+                if (addCartItemDTO == null || userId <= 0 || addCartItemDTO.ProductId <= 0 || addCartItemDTO.Quantity <= 0)
+                {
+                    return BadRequest("Invalid cart data.");
+                }
+
+                var cart = await _cartServices.AddToCartAsync(userId, addCartItemDTO.ProductId, addCartItemDTO.Quantity);
+
+                return Ok(cart);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
+            }
         }
         public class UpdateCartItemsDTO
         {
@@ -49,9 +60,8 @@ namespace E_commerce.Controllers
         {
             try
             {
-                // Get updated cart as a list of CartDTO
                 var updatedCart = await _cartServices.UpdateCartByUserAsync(userId, updateCartItemsDto);
-                return Ok(updatedCart); // Return the updated cart items as a list of CartDTO
+                return Ok(updatedCart);           
             }
             catch (Exception ex)
             {
@@ -60,27 +70,12 @@ namespace E_commerce.Controllers
         }
 
 
-        //[HttpPut("{userId}")]
-        //public async Task<IActionResult> UpdateCartItem(int userId, [FromBody] UpdateCartItemDTO updateCartItemDto)
-        //{
-        //    try
-        //    {
-        //        var updatedCart = await _cartServices.UpdateCartByUserAsync(userId, updateCartItemDto);
-        //        return Ok(updatedCart); // Return the updated cart details
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return NotFound(new { message = ex.Message });
-        //    }
-        //}
-
 
 
         [HttpDelete("clear/{userId}/deletItemsInCart")]
         public async Task<IActionResult> ClearCart(int userId)
         {
             var result = await _cartServices.ClearCartItemByUserAsync(userId);
-            Console.WriteLine($"result ${result}");
             if(result)
             {
                 return Ok("Cart cleared successfully");
@@ -93,3 +88,6 @@ namespace E_commerce.Controllers
 
     }
 }
+
+
+

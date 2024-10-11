@@ -24,7 +24,7 @@ namespace E_commerce.Models
     {
         public int UserId { get; set; }
         [Required]
-        public string UserName { get; set; }=string.Empty;
+        public string UserName { get; set; }=   string.Empty;
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email format.")]
         public string Email { get; set; } = string.Empty;

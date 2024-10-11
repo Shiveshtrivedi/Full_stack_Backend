@@ -63,7 +63,6 @@ namespace E_commerce.Controllers
 
             try
             {
-                // Call the sales comparison service
                 var result = await _salesService.CompareSalesAsync(comparisonRequest.CurrentPeriod, comparisonRequest.PreviousPeriod);
 
                 if (result == null)
@@ -75,10 +74,6 @@ namespace E_commerce.Controllers
             }
             catch (Exception ex)
             {
-                // Log the error (use logging mechanisms like Serilog, NLog, etc.)
-                Console.WriteLine($"Error in CompareSales: {ex.Message}");
-
-                // Return a 500 error with details for debugging
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }

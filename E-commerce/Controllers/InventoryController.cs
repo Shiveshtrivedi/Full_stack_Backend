@@ -22,7 +22,7 @@ namespace E_commerce.Controllers
             return Ok(inventories);
         }
 
-        [HttpGet("{productId}")]
+        [HttpGet("{productId}/getInventory")]
         public async Task<ActionResult<InventoryDTO>> GetInventoryByProductId(int productId)
         {
             var inventory = await _inventoryService.GetInventoryByProductIdAsync(productId);
@@ -33,13 +33,14 @@ namespace E_commerce.Controllers
             return Ok(inventory);
         }
 
-        [HttpPost("{productId}")]
+        [HttpPost("{productId}/createInventory")]
         public async Task<IActionResult> CreateInventory(int productId)
         {
             try
             {
-                await _inventoryService.CreateInventoryAsync(productId);
-                return CreatedAtAction(nameof(GetInventoryByProductId), new { productId }, null);
+                var createdInventory = await _inventoryService.CreateInventoryAsync(productId);
+
+                return CreatedAtAction(nameof(GetInventoryByProductId), new { productId }, createdInventory);
             }
             catch (Exception ex)
             {
@@ -47,7 +48,8 @@ namespace E_commerce.Controllers
             }
         }
 
-        [HttpPut("update-stock")]
+
+        [HttpPut("updateStock")]
         public async Task<IActionResult> UpdateStock([FromBody] UpdateStockDTO updateStockDto)
         {
             if (!ModelState.IsValid)
@@ -57,8 +59,7 @@ namespace E_commerce.Controllers
 
             var updatedProducts = await _inventoryService.UpdateStockAsync(updateStockDto);
 
-            // Return the updated products as a response
-            return Ok(updatedProducts); // Return 200 OK with the list of updated products
+            return Ok(updatedProducts);          
         }
 
 
@@ -75,7 +76,7 @@ namespace E_commerce.Controllers
             {
                 return NotFound();
             }
-            return NoContent(); // Return 204 No Content on successful update
+            return NoContent();        
         }
 
 

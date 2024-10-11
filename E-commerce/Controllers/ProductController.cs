@@ -21,7 +21,6 @@ namespace E_commerce.Controllers
         public async Task<IActionResult> GetProducts()
         {
             var products = await _productServices.GetAllProductsAsync();
-            Console.WriteLine($"products {products}");
             
             return Ok(products);
         }

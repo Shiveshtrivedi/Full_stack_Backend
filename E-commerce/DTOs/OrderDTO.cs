@@ -8,7 +8,9 @@ namespace E_commerce.DTOs
         public string Status { get; set; } = string.Empty;
         public DateTime OrderDate { get; set; }
         public string PaymentMethod { get; set; } = string.Empty;
-        public List<OrderDetailDTO>? OrderDetails { get; set; }
+        public List<OrderDetailDTO>? OrderDetails { get; set; } 
+        public string RazorpayOrderId { get; set; }
+        public string TransctionId { get; set; }
     }
 
     public class OrderDetailDTO
@@ -25,6 +27,7 @@ namespace E_commerce.DTOs
     {
         public int UserId { get; set; }
         public string PaymentMethod { get; set; } = string.Empty;
+        public string? TransctionId { get; set; }
         public List<OrderItemDTO>? Items { get; set; }
     }
 
@@ -45,6 +48,7 @@ namespace E_commerce.DTOs
     public class OrderUpdateDTO
     {
         public string? Status { get; set; }     
-        public string? PaymentMethod { get; set; }    
+        public string? PaymentMethod { get; set; }
+        public string? TransctionId { get; set; }
     }
 }

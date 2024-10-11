@@ -37,36 +37,13 @@ namespace E_commerce.Controllers
 
 
 
-        //[HttpPost("login")]
-        //public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
-        //{
-        //    try
-        //    {
-        //        var userDto = await _authServices.LoginAsync(loginDto);
-        //        return Ok(userDto);
-        //    }
-        //    catch (UnauthorizedAccessException ex)
-        //    {
-        //        return Unauthorized(ex.Message);
-        //    }
-        //    catch (ArgumentException ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return
-        //        Code(500, "Internal server error");
-        //    }
-        //}
-
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
             try
             {
                 var userDto = await _authServices.LoginAsync(loginDto);
-                return Ok(userDto); // This will now include the token
+                return Ok(userDto);       
             }
             catch (UnauthorizedAccessException ex)
             {

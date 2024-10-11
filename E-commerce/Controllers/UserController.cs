@@ -71,7 +71,6 @@ namespace E_commerce.Controllers
                 return BadRequest("User data is null.");
             }
 
-            //var updatedUser = await _userServices.UpdateUserAsync(id, userDTO);
             var updatedUser = await _userServices.UpdateUserAsync(id, userDTO);
             if (updatedUser == null)
             {
@@ -87,8 +86,6 @@ namespace E_commerce.Controllers
             {
                 return BadRequest("User data is null.");
             }
-
-            //var updatedUser = await _userServices.UpdateUserAsync(id, userDTO);
 
             var updatedUser = await _userServices.UpdateUserAsyncWithPassword(id, userDTO);
             if (updatedUser == null)
