@@ -3,16 +3,20 @@ using E_commerce.Utils;
 using E_commerce.Models;
 using Microsoft.EntityFrameworkCore;
 using E_commerce.DTOs;
+using Newtonsoft.Json;
 
 namespace E_commerce.Services
 {
     public class ProductServices : IProductServices
     {
         private readonly DataContext _context;
-        
-        public ProductServices(DataContext context)
+        private readonly MQTTService _mqttService;
+
+
+        public ProductServices(DataContext context, MQTTService mqttService)
         {
             _context = context;
+            _mqttService = mqttService;
         }
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
@@ -50,6 +54,16 @@ namespace E_commerce.Services
 
             await _context.Histories.AddAsync(history);
             await _context.SaveChangesAsync();
+
+            var productMessage = new
+            {
+                ProductId = product.ProductId,
+                ProductName = product.ProductName,
+                Stock = product.Stock
+            };
+
+            var jsonMessage = JsonConvert.SerializeObject(productMessage);
+            await _mqttService.PublishAsync("product/new", jsonMessage);
 
             return product;
         }

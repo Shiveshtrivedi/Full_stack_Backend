@@ -6,4 +6,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <!-- Change to 'Library' for a class library -->
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="MQTTnet" Version="4.3.7" />
+    </ItemGroup>
+  
 </Project>

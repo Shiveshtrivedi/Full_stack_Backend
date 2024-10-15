@@ -32,6 +32,7 @@ builder.Services.AddScoped<IRevenueService, RevenueService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IAdminHistoryService, AdminHistoryService>();
 builder.Services.AddScoped<IRazorpayService, RazorpayService>();
+builder.Services.AddSingleton<MQTTService>();
 
 builder.Services.AddCors(options =>
 {
@@ -72,6 +73,7 @@ builder.Services.AddSingleton<RazorpayService>();
 
 builder.Services.AddAuthorization();
 
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -91,5 +93,9 @@ app.UseAuthorization();
 app.UseAuthentication();
 
 app.MapControllers();
+
+var mqttService = app.Services.GetRequiredService<MQTTService>();
+await mqttService.ConnectAsync("ws://localhost:9001", 1883);
+//await mqttService.ConnectAsync();
 
 app.Run();
