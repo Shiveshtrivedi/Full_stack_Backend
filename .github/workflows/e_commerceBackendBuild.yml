@@ -3,10 +3,10 @@ name: E_commerce_Backend
 on:
   push:
     branches:
-      - main
+      - backend
   pull_request:
     branches:
-      - backend
+      - main
 
 jobs:
   build:
