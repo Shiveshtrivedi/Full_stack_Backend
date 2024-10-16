@@ -23,19 +23,18 @@ jobs:
 
       - name: List repository contents
         run: ls -R
-    
+
       - name: List E-commerce directory
         run: ls -R E-commerce
 
       - name: Restore dependencies
         run: dotnet restore  ./E-commerce/E-commerce.csproj
-        
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build ./E-commerce/E-commerce.csproj --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test ./E-commerce/E-commerce.csproj --no-build --verbosity normal
 
       - name: Publish
-        run: dotnet publish --configuration Release --output ./publish
+        run: dotnet publish ./E-commerce/E-commerce.csproj --configuration Release --output ./publish
