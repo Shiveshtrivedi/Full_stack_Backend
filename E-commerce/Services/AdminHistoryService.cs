@@ -71,8 +71,16 @@ namespace E_commerce.Services
                 return false;
             }
 
-            _context.Histories.Remove(history);
+            history.DeleteFlag = true;
             await _context.SaveChangesAsync();
+
+            var product = await _context.Products.FindAsync(history.ProductId);
+            if (product != null && product.DeleteFlag)
+            {
+                // Both flags are true, remove the product from the database
+                await DeleteProductAndHistory(historyId, product.ProductId);
+            }
+
             return true;
         }
 
@@ -91,5 +99,31 @@ namespace E_commerce.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        private async Task DeleteProductAndHistory(int historyId, int productId)
+        {
+            // Find and remove the history record
+            var history = await _context.Histories.FindAsync(historyId);
+            if (history != null)
+            {
+                _context.Histories.Remove(history);
+            }
+
+            // Find and remove the product record
+            var product = await _context.Products.FindAsync(productId);
+            if (product != null)
+            {
+                var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == productId);
+                if (inventory != null)
+                {
+                    _context.Inventories.Remove(inventory);
+                }
+
+                _context.Products.Remove(product);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

@@ -14,9 +14,18 @@ namespace E_commerce.Services
             _context = context;
         }
 
-        public async Task<decimal> CalculateTotalRevenueAsync()
+        public async Task<List<RevenueDTO>> CalculateTotalRevenueAsync()
         {
-            return await _context.Sales.SumAsync(s=>s.TotalAmount);
+            var revenueData = await _context.Sales
+         .GroupBy(s => s.SaleDate.Date)       
+         .Select(g => new RevenueDTO
+         {
+             Date = g.Key,     
+             TotalRevenue = g.Sum(s => s.TotalAmount)       
+         })
+         .ToListAsync();
+
+            return revenueData;
         }
 
         public async Task<RevenueDTO> GetRevenueByDateAsync(DateTime date)

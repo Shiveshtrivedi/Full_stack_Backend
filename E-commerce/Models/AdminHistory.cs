@@ -24,7 +24,9 @@ namespace E_commerce.Models
         public int? ProductId { get; set; } 
         public Product? Product { get; set; }
 
-        public bool IsAdminAction { get; set; } = false; 
+        public bool IsAdminAction { get; set; } = false;
+        public bool DeleteFlag { get; set; } = false;
+
 
     }
 }

@@ -128,7 +128,6 @@ namespace E_commerce.Services
                     QuantitySold = productSale.QuantitySold
                 });
 
-                // Publish MQTT message with the updated stock information
                 var stockUpdateMessage = new
                 {
                     ProductId = product.ProductId,
@@ -137,7 +136,7 @@ namespace E_commerce.Services
                 };
 
                 var jsonMessage = JsonConvert.SerializeObject(stockUpdateMessage);
-                await _mqttService.PublishAsync("inventory-updates", jsonMessage);  // Assuming mqttService is already injected
+                await _mqttService.PublishAsync("inventory-updates", jsonMessage);       
             }
 
             await _context.SaveChangesAsync();
@@ -157,92 +156,23 @@ namespace E_commerce.Services
                 throw new Exception("Product not found.");
             }
 
-            product.Stock += updateStockDto.AdditionalStock;   // Sync product stock
+            product.Stock += updateStockDto.AdditionalStock;      
 
             var inventory = await _context.Inventories
                 .FirstOrDefaultAsync(i => i.ProductId == updateStockDto.ProductId);
 
             if (inventory != null)
             {
-                inventory.StockAvailable += updateStockDto.AdditionalStock;  // Sync inventory stock
+                inventory.StockAvailable += updateStockDto.AdditionalStock;     
             }
 
-            await _context.SaveChangesAsync();   // Save changes to both tables
+            await _context.SaveChangesAsync();        
             return true;
         }
     }
 }
 
-//public async Task<bool> AdminIncreaseStockAsync(AdminUpdateStockDTO updateStockDto)
-//{
-//    var product = await _context.Products
-//        .FirstOrDefaultAsync(p => p.ProductId == updateStockDto.ProductId);
-
-//    if (product == null)
-//    {
-//        throw new Exception("Product not found.");
-//    }
-
-//    product.Stock += updateStockDto.AdditionalStock;
-
-//    var inventory = await _context.Inventories
-//        .FirstOrDefaultAsync(i => i.ProductId == updateStockDto.ProductId);
-
-//    if (inventory != null)
-//    {
-//        inventory.StockAvailable += updateStockDto.AdditionalStock;
-//    }
-
-//    await _context.SaveChangesAsync();
-//    return true;
-//}
 
 
 
-
-//public async Task<List<ProductSaleDTO>> UpdateStockAsync(UpdateStockDTO updateStockDto)
-//{
-//    var updatedProducts = new List<ProductSaleDTO>();
-
-//    foreach (var productSale in updateStockDto.Products)
-//    {
-
-//        var product = await _context.Products
-//            .FirstOrDefaultAsync(p => p.ProductId == productSale.ProductId);
-
-//        if (product == null)
-//        {
-//            throw new Exception($"Product with ID {productSale.ProductId} not found.");
-//        }
-
-//        var inventory = await _context.Inventories
-//            .FirstOrDefaultAsync(i => i.ProductId == productSale.ProductId);
-
-//        if (inventory == null)
-//        {
-//            throw new Exception($"Inventory not found for Product ID {productSale.ProductId}.");
-//        }
-
-//        if (product.Stock < productSale.QuantitySold || inventory.StockAvailable < productSale.QuantitySold)
-//        {
-//            throw new Exception($"Insufficient stock available for Product ID {productSale.ProductId}.");
-//        }
-
-//        product.Stock -= productSale.QuantitySold;
-
-//        inventory.StockSold += productSale.QuantitySold;
-//        inventory.StockAvailable -= productSale.QuantitySold;
-
-
-//        updatedProducts.Add(new ProductSaleDTO
-//        {
-//            ProductId = productSale.ProductId,
-//            QuantitySold = productSale.QuantitySold
-//        });
-//    }
-
-//    await _context.SaveChangesAsync();
-
-//    return updatedProducts;
-//}
 

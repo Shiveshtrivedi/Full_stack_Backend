@@ -21,7 +21,7 @@ namespace E_commerce.Services
 
         public async Task<IEnumerable<Product>> GetAllProductsAsync()
         {
-            var product = await _context.Products.ToListAsync();
+            var product = await _context.Products.Where(p => !p.DeleteFlag).ToListAsync();
 
             return  product;
         }
@@ -37,6 +37,8 @@ namespace E_commerce.Services
                 Stock = productDTO.Stock,
                 Category = productDTO.Category,
                 Rating = productDTO.Rating,
+                CostPrice = productDTO.CostPrice,
+                SellingPrice = productDTO.SellingPrice,
                 UserId = userId
             };
             await _context.Products.AddAsync(product);
@@ -83,7 +85,9 @@ namespace E_commerce.Services
                     Stock = productDto.Stock,
                     Category = productDto.Category,
                     UserId = productDto.UserId,
-                    Rating = productDto.Rating
+                    Rating = productDto.Rating,
+                    CostPrice = productDto.CostPrice,
+                    SellingPrice = productDto.SellingPrice
                 };
 
                 products.Add(product);
@@ -166,15 +170,52 @@ namespace E_commerce.Services
             if (findProduct == null)
                 return null;
 
-            var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == id);
-            if (inventory != null)
+            findProduct.DeleteFlag = true;
+            await _context.SaveChangesAsync();
+
+            //var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == id);
+            //if (inventory != null)
+            //{
+            //    _context.Inventories.Remove(inventory);         
+            //}
+
+            //_context.Products.Remove(findProduct);
+            //await _context.SaveChangesAsync();
+
+            var history = await _context.Histories.FirstOrDefaultAsync(h => h.ProductId == id);
+            if (history != null && history.DeleteFlag)
             {
-                _context.Inventories.Remove(inventory);         
+                // Both flags are true, remove the product and history from the database
+                await DeleteProductAndHistory(history.HistoryId, id);
             }
 
-            _context.Products.Remove(findProduct);
-            await _context.SaveChangesAsync();
             return findProduct;
         }
+
+        private async Task DeleteProductAndHistory(int historyId, int productId)
+        {
+            // Find and remove the history record
+            var history = await _context.Histories.FindAsync(historyId);
+            if (history != null)
+            {
+                _context.Histories.Remove(history);
+            }
+
+            // Find and remove the product record
+            var product = await _context.Products.FindAsync(productId);
+            if (product != null)
+            {
+                var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == productId);
+                if (inventory != null)
+                {
+                    _context.Inventories.Remove(inventory);
+                }
+
+                _context.Products.Remove(product);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

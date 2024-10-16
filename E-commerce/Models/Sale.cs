@@ -17,5 +17,8 @@ namespace E_commerce.Models
         [ForeignKey("User")]
         public int UserId { get; set; }
         public User? User { get; set; }
+        public int TotalProductsSold { get; set; }
+        public decimal TotalCost { get; set; }
+        public decimal TotalProfit { get; set; }
     }
 }

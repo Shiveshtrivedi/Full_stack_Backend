@@ -19,7 +19,9 @@ namespace E_commerce.Mappings
 
             CreateMap<Order, OrderDTO>()
                 .ForMember(dest => dest.OrderDetails, opt => opt.MapFrom(src => src.OrderDetails))
+                .ForMember(dest=>dest.UserName,opt=>opt.MapFrom(src=>src.User.UserName))
                 .ForMember(dest => dest.TransctionId, opt => opt.MapFrom(src => src.TransctionId));
+              
 
             CreateMap<OrderDetail, OrderDetailDTO>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.ProductName));
@@ -32,6 +34,9 @@ namespace E_commerce.Mappings
             CreateMap<Sale, SalesDTO>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User.UserName))
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Order.OrderDetails.FirstOrDefault().Product.ProductName));
+                 //.ForMember(dest => dest.TotalAmount, opt => opt.MapFrom(src => src.TotalAmount))
+                 //.ForMember(dest => dest.TotalProfit, opt => opt.MapFrom(src => src.TotalProfit));
+
 
             CreateMap<CreateSaleDTO, Sale>();
 

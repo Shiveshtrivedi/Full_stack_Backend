@@ -11,6 +11,7 @@ namespace E_commerce.DTOs
         public List<OrderDetailDTO>? OrderDetails { get; set; } 
         public string RazorpayOrderId { get; set; }
         public string TransctionId { get; set; }
+        public string UserName { get; set; }
     }
 
     public class OrderDetailDTO

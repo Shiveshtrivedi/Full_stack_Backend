@@ -59,7 +59,9 @@ namespace E_commerce.Services
                 ProductId = reviewDto.ProductId,
                 UserId = reviewDto.UserId,
                 Rating = reviewDto.Rating,
-                Comment = reviewDto.Comment
+                Comment = reviewDto.Comment,
+                ReviewDate = reviewDto.ReviewDate
+                
             };
 
             _context.Reviews.Add(review);

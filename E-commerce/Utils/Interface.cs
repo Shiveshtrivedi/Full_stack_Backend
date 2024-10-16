@@ -86,7 +86,7 @@ namespace E_commerce.Utils
     }
     public interface IRevenueService
     {
-        Task<decimal> CalculateTotalRevenueAsync();
+        Task <List<RevenueDTO>> CalculateTotalRevenueAsync();
         Task<RevenueDTO> GetRevenueByDateAsync(DateTime date);
         Task<RevenueByDateDTO> GetRevenueByDateRangeAsync(DateTime startDate, DateTime endDate);
     }

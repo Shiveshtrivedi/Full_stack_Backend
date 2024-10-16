@@ -27,7 +27,7 @@ namespace E_commerce.Services
         public async Task<IEnumerable<OrderDTO>> GetAllOrdersAsync()
         {
             var orders = await _context.Orders
-                .Include(o => o.User)       
+                .Include(o => o.User)  
                 .Include(o => o.ShippingAddress)      
                 .Include(o => o.OrderDetails)    
                     .ThenInclude(od => od.Product)       
@@ -45,6 +45,8 @@ namespace E_commerce.Services
                     .ThenInclude(od => od.Product)
                 .Where(o => o.UserId == userId)
                 .ToListAsync();
+
+
 
             return _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDTO>>(orders);
         }
@@ -87,10 +89,9 @@ namespace E_commerce.Services
 
             if (order == null)
             {
-                return null; // Handle case when order does not exist
+                return null;        
             }
 
-            // Update order details only if necessary
             if (!string.IsNullOrEmpty(orderUpdateDTO.Status))
             {
                 if (Enum.TryParse(typeof(OrderStatus), orderUpdateDTO.Status, out var status))
@@ -99,7 +100,7 @@ namespace E_commerce.Services
                 }
                 else
                 {
-                    return null; // Handle invalid status case
+                    return null;     
                 }
             }
 
@@ -113,7 +114,6 @@ namespace E_commerce.Services
                 order.TransctionId = orderUpdateDTO.TransctionId;
             }
 
-            // List to hold product updates for publishing later
             var updatedProducts = new List<ProductSaleDTO>();
 
             var user = await _context.Users.FindAsync(order.UserId);
@@ -132,39 +132,35 @@ namespace E_commerce.Services
                     throw new Exception($"Inventory not found for Product ID {orderDetail.ProductId}.");
                 }
 
-                // Check if enough stock is available for the order
                 if (inventory.StockAvailable < orderDetail.Quantity)
                 {
                     throw new Exception($"Insufficient stock available for Product ID {orderDetail.ProductId}.");
                 }
 
-                // Update product stock
                 if (product != null)
                 {
-                    product.Stock -= orderDetail.Quantity; // Decrease product stock
+                    product.Stock -= orderDetail.Quantity;    
                 }
 
-                // Update inventory stock
                 inventory.StockSold += orderDetail.Quantity;
                 inventory.StockAvailable -= orderDetail.Quantity;
 
                 var sale = new Sale
                 {
                     OrderId = orderId,
-                    UserId = order.UserId, // Assuming UserId is part of the Order entity
+                    UserId = order.UserId,         
                     StartDate = DateTime.Now,
                     EndDate = DateTime.Now.AddDays(3),
                     SaleDate = DateTime.Now,
-                    TotalAmount = orderDetail.Quantity * orderDetail.Price // Assuming Price is part of OrderDetail
+                    TotalAmount = orderDetail.Quantity * orderDetail.Price       
                     
                 };
 
                 _context.Sales.Add(sale);
 
-                // Publish sales update
                 var salesPayload = new
                 {
-                    SaleId = sale.SalesId, // Assuming SalesId is the key in the Sale model
+                    SaleId = sale.SalesId,          
                     orderId = sale.OrderId,
                     userId = sale.UserId,
                     userName = userName,
@@ -185,23 +181,20 @@ namespace E_commerce.Services
                     QuantitySold = orderDetail.Quantity
                 });
 
-                // Publish MQTT message with updated stock information for both product and inventory
                 var stockUpdateMessage = new
                 {
                     ProductId = product.ProductId,
                     StockAvailable = inventory.StockAvailable,
                     StockSold = inventory.StockSold,
-                    ProductStock = product.Stock // include the product stock in the message
+                    ProductStock = product.Stock        
                 };
 
                 var jsonMessage = JsonConvert.SerializeObject(stockUpdateMessage);
-                await _mqttService.PublishAsync("inventory-updates", jsonMessage); // Publish inventory updates
+                await _mqttService.PublishAsync("inventory-updates", jsonMessage);    
             }
 
-            // Save changes to both the inventory and product tables
             await _context.SaveChangesAsync();
 
-            // Publish order update message for real-time notification
             var orderMessage = new
             {
                 OrderId = order.OrderId,
@@ -210,109 +203,14 @@ namespace E_commerce.Services
             };
 
             var orderJsonMessage = JsonConvert.SerializeObject(orderMessage);
-            await _mqttService.PublishAsync("order/updates", orderJsonMessage); // Publish order updates
+            await _mqttService.PublishAsync("order/updates", orderJsonMessage);    
 
-            // Return updated orders as an IEnumerable<OrderDTO>
             return new List<OrderDTO> { _mapper.Map<Order, OrderDTO>(order) };
         }
 
 
 
 
-        //public async Task<IEnumerable<OrderDTO>> UpdateOrderAsync(int orderId, OrderUpdateDTO orderUpdateDTO)
-        //{
-        //    var order = await _context.Orders
-        //        .Include(o => o.OrderDetails)
-        //            .ThenInclude(od => od.Product)
-        //        .Include(o => o.ShippingAddress)
-        //        .FirstOrDefaultAsync(o => o.OrderId == orderId);
-
-        //    if (order == null)
-        //    {
-        //        return null;
-        //    }
-
-        //    if (!string.IsNullOrEmpty(orderUpdateDTO.Status))
-        //    {
-        //        if (Enum.TryParse(typeof(OrderStatus), orderUpdateDTO.Status, out var status))
-        //        {
-        //            order.Status = (OrderStatus)status;
-        //        }
-        //        else
-        //        {
-        //            return null;
-        //        }
-        //    }
-
-        //    if (!string.IsNullOrEmpty(orderUpdateDTO.PaymentMethod))
-        //    {
-        //        order.PaymentMethod = orderUpdateDTO.PaymentMethod;
-        //    }
-
-        //    if (!string.IsNullOrEmpty(orderUpdateDTO.TransctionId))
-        //    {
-        //        order.TransctionId = orderUpdateDTO.TransctionId;
-        //    }
-
-        //    //await _context.SaveChangesAsync();
-
-        //    foreach(var orderDetail in order.OrderDetails)
-        //    {
-        //        var product = orderDetail.Product;
-
-        //        var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == product.ProductId);
-        //        if (inventory != null)
-        //        {
-        //            inventory.StockAvailable -= orderDetail.Quantity;
-
-        //            var inventoryPayload = new
-        //            {
-        //                ProductId = product.ProductId,
-        //                StockAvailable = inventory.StockAvailable
-        //            };
-        //            await _mqttService.PublishAsync("inventory-updates", JsonConvert.SerializeObject(inventoryPayload));
-
-        //        }
-
-        //        var sale = new Sale
-        //        {
-        //            OrderId = orderId,
-        //            UserId = order.UserId,      
-        //            StartDate = DateTime.Now,
-        //            EndDate = DateTime.Now.AddDays(3),
-        //            SaleDate = DateTime.Now,
-        //            TotalAmount = orderDetail.Quantity * orderDetail.Price      
-        //        };
-
-        //        _context.Sales.Add(sale);
-
-        //        var salesPayload = new
-        //        {
-        //            SaleId = sale.SalesId,
-        //            OrderId = sale.OrderId,
-        //            TotalAmount = sale.TotalAmount,
-        //            SaleDate = sale.SaleDate
-        //        };
-        //        await _mqttService.PublishAsync("sales-updates", JsonConvert.SerializeObject(salesPayload));
-
-        //    }
-
-        //    await _context.SaveChangesAsync();
-
-        //    var updatedOrder = await _context.Orders
-        //       .Include(o => o.OrderDetails)
-        //           .ThenInclude(od => od.Product)
-        //       .Include(o => o.ShippingAddress)
-        //       .FirstOrDefaultAsync(o => o.OrderId == orderId);
-
-        //    if (updatedOrder == null)
-        //    {
-        //        return null;
-        //    }
-
-
-        //    return new List<OrderDTO> { _mapper.Map<Order, OrderDTO>(updatedOrder) };
-        //}
 
 
 

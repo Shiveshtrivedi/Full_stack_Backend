@@ -25,5 +25,8 @@ namespace E_commerce.Models
 
         public int? UserId { get; set; }
         public User? User { get; set; }
+        public bool DeleteFlag { get; set; } = false;
+        public decimal CostPrice { get; set; }
+        public decimal SellingPrice { get; set; }
     }
 }

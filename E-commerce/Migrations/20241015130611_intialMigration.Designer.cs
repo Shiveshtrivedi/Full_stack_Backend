@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_commerce.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20241011044511_intialMigration")]
+    [Migration("20241015130611_intialMigration")]
     partial class intialMigration
     {
         /// <inheritdoc />
@@ -39,6 +39,9 @@ namespace E_commerce.Migrations
                     b.Property<string>("ActionType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("DeleteFlag")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Details")
                         .IsRequired()
@@ -155,7 +158,6 @@ namespace E_commerce.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("TransctionId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
@@ -211,6 +213,12 @@ namespace E_commerce.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("CostPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("DeleteFlag")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Image")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -228,6 +236,9 @@ namespace E_commerce.Migrations
 
                     b.Property<double?>("Rating")
                         .HasColumnType("float");
+
+                    b.Property<decimal>("SellingPrice")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("Stock")
                         .HasColumnType("int");
@@ -282,6 +293,9 @@ namespace E_commerce.Migrations
                     b.Property<int>("Rating")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("ReviewDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
@@ -315,6 +329,15 @@ namespace E_commerce.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TotalCost")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TotalProductsSold")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalProfit")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<int>("UserId")

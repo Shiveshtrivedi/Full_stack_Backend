@@ -13,6 +13,11 @@ namespace E_commerce.DTOs
         public DateTime EndDate { get; set; }
         public decimal TotalAmount { get; set; }
         public string ProductName { get; set; } = string.Empty;
+        public int TotalProductsSold { get; set; }
+        public decimal CostPrice { get; set; }
+        public decimal SellingPrice { get; set; }
+        public decimal TotalProfit { get; set; }
+
     }
     public class CreateSaleDTO
     {
@@ -22,6 +27,8 @@ namespace E_commerce.DTOs
         [Required]
         public DateTime EndDate { get; set; }
         public decimal TotalAmount { get; set; }
+        public decimal CostPrice { get; set; }
+        public decimal SellingPrice { get; set; }
     }
 
     public class SalesComparisonDTO
