@@ -22,7 +22,8 @@ jobs:
           dotnet-version: "8.0"
 
       - name: Restore dependencies
-        run: dotnet restore ./E-commerce.sln  
+        run: dotnet restore ./E-commerce/E-commerce.sln
+
         
 
       - name: Build
