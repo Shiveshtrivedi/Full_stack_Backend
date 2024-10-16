@@ -23,6 +23,7 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore
+        working-directory: ./E_commerce
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
