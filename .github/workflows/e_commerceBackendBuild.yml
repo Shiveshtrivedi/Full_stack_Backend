@@ -22,8 +22,8 @@ jobs:
           dotnet-version: "8.0"
 
       - name: Restore dependencies
-        run: dotnet restore
-        working-directory: E_commerce
+        run: dotnet restore E-commerce.sln
+        
 
       - name: Build
         run: dotnet build --configuration Release --no-restore
