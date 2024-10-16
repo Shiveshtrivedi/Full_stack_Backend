@@ -28,8 +28,7 @@ jobs:
         run: ls -R E-commerce
 
       - name: Restore dependencies
-        run: dotnet restore ../E-commerce.sln
-
+        run: dotnet restore  ./E-commerce/E-commerce.csproj
         
 
       - name: Build
