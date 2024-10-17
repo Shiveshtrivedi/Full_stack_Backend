@@ -1,0 +1,40 @@
+name: E_commerce_Backend
+
+on:
+  push:
+    branches:
+      - backend
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: "8.0"
+
+      - name: List repository contents
+        run: ls -R
+
+      - name: List E-commerce directory
+        run: ls -R E-commerce
+
+      - name: Restore dependencies
+        run: dotnet restore  ./E-commerce/E-commerce.csproj
+
+      - name: Build
+        run: dotnet build ./E-commerce/E-commerce.csproj --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test ./E-commerce/E-commerce.csproj --no-build --verbosity normal
+
+      - name: Publish
+        run: dotnet publish ./E-commerce/E-commerce.csproj --configuration Release --output ./publish
