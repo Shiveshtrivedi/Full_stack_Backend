@@ -20,152 +20,184 @@ namespace E_commerce.Services
 
         public async Task<IEnumerable<CartDTO>> GetAllProductsFromCartAsync(int userId)
         {
-            var cart = await _context.Carts
-                                 .Include(c => c.Items)
-                                 .ThenInclude(ci => ci.Product)
-                                 .Where(c => c.UserId == userId)
-                                 .FirstOrDefaultAsync();
-
-            if (cart == null)
+            try
             {
-                return null;
-            }
+                var cart = await _context.Carts
+                                     .Include(c => c.Items)
+                                     .ThenInclude(ci => ci.Product)
+                                     .Where(c => c.UserId == userId)
+                                     .FirstOrDefaultAsync();
 
-            var cartDto = _mapper.Map<CartDTO>(cart);
-            cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
-            foreach (var item in cartDto.Items)
-            {
-                var product = cart.Items.FirstOrDefault(ci => ci.ProductId == item.ProductId)?.Product;
-                if (product != null)
+                if (cart == null)
                 {
-                    item.ImageUrl = product.Image;
-                    item.ProductName = product.ProductName;
-                    item.Price = product.Price;
+                    return null;
                 }
-            }
-            cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
-            cartDto.Quantity = cart.Items.Sum(ci => ci.Quantity);
 
-            return new List<CartDTO> { cartDto };
+                var cartDto = _mapper.Map<CartDTO>(cart);
+                cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
+                foreach (var item in cartDto.Items)
+                {
+                    var product = cart.Items.FirstOrDefault(ci => ci.ProductId == item.ProductId)?.Product;
+                    if (product != null)
+                    {
+                        item.ImageUrl = product.Image;
+                        item.ProductName = product.ProductName;
+                        item.Price = product.Price;
+                    }
+                }
+                cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
+                cartDto.Quantity = cart.Items.Sum(ci => ci.Quantity);
+
+                return new List<CartDTO> { cartDto };
+            }
+            catch(Exception ex)
+            {
+                Console.Error.WriteLine($"Error retrieving products from cart: {ex.Message}");
+                throw;
+            }
 
         }
 
         public async Task<CartDTO[]> AddToCartAsync(int userId, int productId, int quantity)
         {
-            var cart = await _context.Carts
-                                  .Include(c => c.Items)
-                                  .ThenInclude(ci => ci.Product)
-                                  .FirstOrDefaultAsync(c => c.UserId == userId);
-
-            if (cart == null)
+            try
             {
-                cart = new Cart { UserId = userId, Items = new List<CartItem>() };
-                _context.Carts.Add(cart);
-            }
+                var cart = await _context.Carts
+                                      .Include(c => c.Items)
+                                      .ThenInclude(ci => ci.Product)
+                                      .FirstOrDefaultAsync(c => c.UserId == userId);
 
-            var existingCartItem = cart.Items.FirstOrDefault(ci => ci.ProductId == productId);
-
-            if (existingCartItem != null)
-            {
-                existingCartItem.Quantity += quantity;
-            }
-            else
-            {
-                var product = await _context.Products.FindAsync(productId);
-                if (product == null)
+                if (cart == null)
                 {
-                    throw new Exception("Product not found");
+                    cart = new Cart { UserId = userId, Items = new List<CartItem>() };
+                    _context.Carts.Add(cart);
                 }
 
-                var newCartItem = new CartItem
-                {
-                    ProductId = productId,
-                    Quantity = quantity,
-                    Product = product
-                };
-                cart.Items.Add(newCartItem);
-            }
+                var existingCartItem = cart.Items.FirstOrDefault(ci => ci.ProductId == productId);
 
-            await _context.SaveChangesAsync();
-
-            var cartDto = _mapper.Map<CartDTO>(cart);
-            cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
-            foreach (var item in cartDto.Items)
-            {
-                var product = cart.Items.FirstOrDefault(ci => ci.ProductId == item.ProductId)?.Product;
-                if (product != null)
+                if (existingCartItem != null)
                 {
-                    item.ImageUrl = product.Image;
-                    item.ProductName = product.ProductName;
-                    item.Price = product.Price;
+                    existingCartItem.Quantity += quantity;
                 }
-            }
-            cartDto.Quantity = cart.Items.Sum(ci => ci.Quantity);
+                else
+                {
+                    var product = await _context.Products.FindAsync(productId);
+                    if (product == null)
+                    {
+                        throw new Exception("Product not found");
+                    }
 
-            return new CartDTO[] { cartDto };
+                    var newCartItem = new CartItem
+                    {
+                        ProductId = productId,
+                        Quantity = quantity,
+                        Product = product
+                    };
+                    cart.Items.Add(newCartItem);
+                }
+
+                await _context.SaveChangesAsync();
+
+                var cartDto = _mapper.Map<CartDTO>(cart);
+                cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
+                foreach (var item in cartDto.Items)
+                {
+                    var product = cart.Items.FirstOrDefault(ci => ci.ProductId == item.ProductId)?.Product;
+                    if (product != null)
+                    {
+                        item.ImageUrl = product.Image;
+                        item.ProductName = product.ProductName;
+                        item.Price = product.Price;
+                    }
+                }
+                cartDto.Quantity = cart.Items.Sum(ci => ci.Quantity);
+
+                return new CartDTO[] { cartDto };
+            }
+            catch(Exception ex)
+            {
+                Console.Error.WriteLine($"Error adding to cart: {ex.Message}");
+                throw;
+            }
         }
 
 
         public async Task<List<CartDTO>> UpdateCartByUserAsync(int userId, List<UpdateCartItemDTO> updateCartItemsDto)
         {
-            var cart = await _context.Carts
-                                     .Include(c => c.Items)
-                                     .ThenInclude(ci => ci.Product)
-                                     .FirstOrDefaultAsync(c => c.UserId == userId);
-
-            if (cart == null)
-                throw new Exception("Cart not found");
-
-            foreach (var updateCartItemDto in updateCartItemsDto)
+            try
             {
-                var cartItem = cart.Items.FirstOrDefault(item => item.ProductId == updateCartItemDto.ProductId);
+                var cart = await _context.Carts
+                                         .Include(c => c.Items)
+                                         .ThenInclude(ci => ci.Product)
+                                         .FirstOrDefaultAsync(c => c.UserId == userId);
 
-                if (cartItem == null)
-                    throw new Exception($"Cart item with ProductId {updateCartItemDto.ProductId} not found");
+                if (cart == null)
+                    throw new Exception("Cart not found");
 
-                if (updateCartItemDto.Quantity > 0)
+                foreach (var updateCartItemDto in updateCartItemsDto)
                 {
-                    cartItem.Quantity = updateCartItemDto.Quantity;
+                    var cartItem = cart.Items.FirstOrDefault(item => item.ProductId == updateCartItemDto.ProductId);
+
+                    if (cartItem == null)
+                        throw new Exception($"Cart item with ProductId {updateCartItemDto.ProductId} not found");
+
+                    if (updateCartItemDto.Quantity > 0)
+                    {
+                        cartItem.Quantity = updateCartItemDto.Quantity;
+                    }
+                    else
+                    {
+                        _context.CartItems.Remove(cartItem);
+                    }
                 }
-                else
+
+                await _context.SaveChangesAsync();
+
+                var cartDto = new CartDTO
                 {
-                    _context.CartItems.Remove(cartItem);
-                }
+                    CartId = cart.CartId,
+                    UserId = cart.UserId,
+                    TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price),
+                    Items = cart.Items.Select(ci => new CartItemDTO
+                    {
+                        ProductId = ci.ProductId,
+                        Quantity = ci.Quantity,
+                        ImageUrl = ci.Product.Image,
+                        ProductName = ci.Product.ProductName,
+                        Price = ci.Product.Price
+                    }).ToList()
+                };
+                cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
+                cartDto.Quantity = cart.Items.Sum(ci => ci.Quantity);
+
+                return new List<CartDTO> { cartDto };
             }
-
-            await _context.SaveChangesAsync();
-
-            var cartDto = new CartDTO
+            catch(Exception ex)
             {
-                CartId = cart.CartId,
-                UserId = cart.UserId,
-                TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price),
-                Items = cart.Items.Select(ci => new CartItemDTO
-                {
-                    ProductId = ci.ProductId,
-                    Quantity = ci.Quantity,
-                    ImageUrl = ci.Product.Image,
-                    ProductName = ci.Product.ProductName,
-                    Price = ci.Product.Price
-                }).ToList()
-            };
-            cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
-            cartDto.Quantity = cart.Items.Sum(ci => ci.Quantity);
-
-            return new List<CartDTO> { cartDto };
+                Console.Error.WriteLine($"Error updating cart: {ex.Message}");
+                throw;
+            }
         }
 
         public async Task<bool> ClearCartItemByUserAsync(int userId)
         {
-            var cart = await _context.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == userId);
+            try
+            {
+                var cart = await _context.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserId == userId);
 
-            if (cart == null)
-                return false;
+                if (cart == null)
+                    return false;
 
-            _context.CartItems.RemoveRange(cart.Items);
-            await _context.SaveChangesAsync();
+                _context.CartItems.RemoveRange(cart.Items);
+                await _context.SaveChangesAsync();
 
-            return true;
+                return true;
+            }
+            catch(Exception ex)
+            {
+                Console.Error.WriteLine($"Error clearing cart: {ex.Message}");
+                throw;
+            }
 
 
         }

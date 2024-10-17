@@ -18,108 +18,143 @@ namespace E_commerce.Services
 
         public async Task<IEnumerable<HistoryDTO>> GetAllHistoryAsync()
         {
-            var histories = await _context.Histories
-                .Include(h => h.User)
-                .Include(h => h.Product)
-                .Select(h => new HistoryDTO
-                {
-                    HistoryId = h.HistoryId,
-                    ActionType = h.ActionType,
-                    Details = h.Details,
-                    ActionDate = h.ActionDate,
-                    UserId = h.UserId,
-                    UserName = h.User != null ? h.User.UserName : null,
-                    ProductId = h.ProductId,
-                    ProductName = h.Product != null ? h.Product.ProductName : null,
-                    IsAdminAction = h.IsAdminAction
-                })
-                .ToListAsync();
-
+            try
+            {
+                var histories = await _context.Histories
+                    .Include(h => h.User)
+                    .Include(h => h.Product)
+                    .Select(h => new HistoryDTO
+                    {
+                        HistoryId = h.HistoryId,
+                        ActionType = h.ActionType,
+                        Details = h.Details,
+                        ActionDate = h.ActionDate,
+                        UserId = h.UserId,
+                        UserName = h.User != null ? h.User.UserName : null,
+                        ProductId = h.ProductId,
+                        ProductName = h.Product != null ? h.Product.ProductName : null,
+                        IsAdminAction = h.IsAdminAction
+                    })
+                    .ToListAsync();
             return histories;
+            }
+            catch(Exception ex)
+            {
+                return Enumerable.Empty<HistoryDTO>();
+            }
+
         }
 
         public async Task<List<HistoryDTO>> GetHistoryByUserIdAsync(int userId)
         {
-            var histories = await _context.Histories
-                .Include(h => h.Product)
-                .Include(u => u.User)
-                .Where(h => h.UserId == userId)
-                .ToListAsync();
-
-            return histories.Select(h => new HistoryDTO
+            try
             {
-                HistoryId = h.HistoryId,
-                UserId = h.UserId,
-                UserName = h.User?.UserName,
-                ActionType = h.ActionType,
-                Details = h.Details,
-                ActionDate = h.ActionDate,
-                ProductName = h.Product?.ProductName,
-                ProductImage = h.Product?.Image,
-                Price = h.Product?.Price,
-                ProductId = h.Product?.ProductId
-            }).ToList();
+                var histories = await _context.Histories
+                    .Include(h => h.Product)
+                    .Include(u => u.User)
+                    .Where(h => h.UserId == userId)
+                    .ToListAsync();
+
+                return histories.Select(h => new HistoryDTO
+                {
+                    HistoryId = h.HistoryId,
+                    UserId = h.UserId,
+                    UserName = h.User?.UserName,
+                    ActionType = h.ActionType,
+                    Details = h.Details,
+                    ActionDate = h.ActionDate,
+                    ProductName = h.Product?.ProductName,
+                    ProductImage = h.Product?.Image,
+                    Price = h.Product?.Price,
+                    ProductId = h.Product?.ProductId
+                }).ToList();
+            }
+            catch(Exception ex)
+            {
+                return new List<HistoryDTO>();
+            }
         }
 
 
         public async Task<bool> DeleteHistoryAsync(int historyId)
         {
-            var history = await _context.Histories.FindAsync(historyId);
+            try
+            {
+                var history = await _context.Histories.FindAsync(historyId);
 
-            if (history == null)
+                if (history == null)
+                {
+                    return false;
+                }
+
+                history.DeleteFlag = true;
+                await _context.SaveChangesAsync();
+
+                var product = await _context.Products.FindAsync(history.ProductId);
+                if (product != null && product.DeleteFlag)
+                {
+                    await DeleteProductAndHistory(historyId, product.ProductId);
+                }
+
+                return true;
+            }
+            catch(Exception ex)
             {
                 return false;
             }
-
-            history.DeleteFlag = true;
-            await _context.SaveChangesAsync();
-
-            var product = await _context.Products.FindAsync(history.ProductId);
-            if (product != null && product.DeleteFlag)
-            {
-                await DeleteProductAndHistory(historyId, product.ProductId);
-            }
-
-            return true;
         }
 
         public async Task<bool> ClearHistoryAsync(int userId)
         {
-            var allHistoryRecords = await _context.Histories
-                .Where(i => i.UserId == userId)
-                .ToListAsync();
+            try
+            {
+                var allHistoryRecords = await _context.Histories
+                    .Where(i => i.UserId == userId)
+                    .ToListAsync();
 
-            if (allHistoryRecords.Count == 0)
+                if (allHistoryRecords.Count == 0)
+                {
+                    return false;
+                }
+
+                _context.Histories.RemoveRange(allHistoryRecords);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception ex)
             {
                 return false;
             }
-
-            _context.Histories.RemoveRange(allHistoryRecords);
-            await _context.SaveChangesAsync();
-            return true;
         }
 
         private async Task DeleteProductAndHistory(int historyId, int productId)
         {
-            var history = await _context.Histories.FindAsync(historyId);
-            if (history != null)
+            try
             {
-                _context.Histories.Remove(history);
-            }
-
-            var product = await _context.Products.FindAsync(productId);
-            if (product != null)
-            {
-                var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == productId);
-                if (inventory != null)
+                var history = await _context.Histories.FindAsync(historyId);
+                if (history != null)
                 {
-                    _context.Inventories.Remove(inventory);
+                    _context.Histories.Remove(history);
                 }
 
-                _context.Products.Remove(product);
-            }
+                var product = await _context.Products.FindAsync(productId);
+                if (product != null)
+                {
+                    var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == productId);
+                    if (inventory != null)
+                    {
+                        _context.Inventories.Remove(inventory);
+                    }
 
-            await _context.SaveChangesAsync();
+                    _context.Products.Remove(product);
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("error message" + ex.Message);
+            }
         }
 
     }

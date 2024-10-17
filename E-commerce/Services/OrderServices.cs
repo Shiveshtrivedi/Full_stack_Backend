@@ -26,244 +26,279 @@ namespace E_commerce.Services
 
         public async Task<IEnumerable<OrderDTO>> GetAllOrdersAsync()
         {
-            var orders = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.ShippingAddress)
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                .ToListAsync();
+            try
+            {
+                var orders = await _context.Orders
+                    .Include(o => o.User)
+                    .Include(o => o.ShippingAddress)
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(od => od.Product)
+                    .ToListAsync();
 
-            return _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDTO>>(orders);
+                return _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDTO>>(orders);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving orders.", ex);
+            }
         }
 
         public async Task<IEnumerable<OrderDTO>> GetOrdersByUserIdAsync(int userId)
         {
-            var orders = await _context.Orders
-                .Include(o => o.User)
-                .Include(o => o.ShippingAddress)
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                .Where(o => o.UserId == userId)
-                .ToListAsync();
+            try
+            {
+                var orders = await _context.Orders
+                    .Include(o => o.User)
+                    .Include(o => o.ShippingAddress)
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(od => od.Product)
+                    .Where(o => o.UserId == userId)
+                    .ToListAsync();
 
 
 
-            return _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDTO>>(orders);
+                return _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDTO>>(orders);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("An error occurred while retrieving orders for the user.", ex);
+            }
         }
 
         public async Task<OrderDTO> GetOrderByIdAsync(int orderId)
         {
-            var order = await _context.Orders.Include(o => o.OrderDetails)
-                                             .ThenInclude(p => p.Product)
-                                             .Include(s => s.ShippingAddress)
-                                             .Where(o => o.OrderId == orderId)
-                                             .FirstOrDefaultAsync();
-
-            if (order == null)
-                return null;
-
-            var orderDto = new OrderDTO
+            try
             {
-                OrderId = order.OrderId,
-                OrderDate = order.OrderDate,
-                Status = order.Status.ToString(),
-                PaymentMethod = order.PaymentMethod,
-                OrderDetails = order.OrderDetails.Select(od => new OrderDetailDTO
+                var order = await _context.Orders.Include(o => o.OrderDetails)
+                                                 .ThenInclude(p => p.Product)
+                                                 .Include(s => s.ShippingAddress)
+                                                 .Where(o => o.OrderId == orderId)
+                                                 .FirstOrDefaultAsync();
+
+                if (order == null)
+                    return null;
+
+                var orderDto = new OrderDTO
                 {
-                    ProductId = od.ProductId,
-                    ProductName = od.Product.ProductName,
-                    Quantity = od.Quantity,
-                    Price = od.Price
-                }).ToList()
-            };
-            return orderDto;
+                    OrderId = order.OrderId,
+                    OrderDate = order.OrderDate,
+                    Status = order.Status.ToString(),
+                    PaymentMethod = order.PaymentMethod,
+                    OrderDetails = order.OrderDetails.Select(od => new OrderDetailDTO
+                    {
+                        ProductId = od.ProductId,
+                        ProductName = od.Product.ProductName,
+                        Quantity = od.Quantity,
+                        Price = od.Price
+                    }).ToList()
+                };
+                return orderDto;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"An error occurred while retrieving order with ID {orderId}.", ex);
+            }
         }
 
         public async Task<IEnumerable<OrderDTO>> UpdateOrderAsync(int orderId, OrderUpdateDTO orderUpdateDTO)
         {
-            var order = await _context.Orders
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Product)
-                .Include(o => o.ShippingAddress)
-                .FirstOrDefaultAsync(o => o.OrderId == orderId);
-
-            if (order == null)
+            try
             {
-                return null;
-            }
+                var order = await _context.Orders
+                    .Include(o => o.OrderDetails)
+                        .ThenInclude(od => od.Product)
+                    .Include(o => o.ShippingAddress)
+                    .FirstOrDefaultAsync(o => o.OrderId == orderId);
 
-            if (!string.IsNullOrEmpty(orderUpdateDTO.Status))
-            {
-                if (Enum.TryParse(typeof(OrderStatus), orderUpdateDTO.Status, out var status))
-                {
-                    order.Status = (OrderStatus)status;
-                }
-                else
+                if (order == null)
                 {
                     return null;
                 }
-            }
 
-            if (!string.IsNullOrEmpty(orderUpdateDTO.PaymentMethod))
-            {
-                order.PaymentMethod = orderUpdateDTO.PaymentMethod;
-            }
-
-            if (!string.IsNullOrEmpty(orderUpdateDTO.TransctionId))
-            {
-                order.TransctionId = orderUpdateDTO.TransctionId;
-            }
-
-            var updatedProducts = new List<ProductSaleDTO>();
-
-            var user = await _context.Users.FindAsync(order.UserId);
-            var userName = user?.UserName ?? string.Empty;
-
-            foreach (var orderDetail in order.OrderDetails)
-            {
-                var product = await _context.Products
-                    .FirstOrDefaultAsync(p => p.ProductId == orderDetail.ProductId);
-
-                var inventory = await _context.Inventories
-                    .FirstOrDefaultAsync(i => i.ProductId == orderDetail.ProductId);
-
-                if (inventory == null)
+                if (!string.IsNullOrEmpty(orderUpdateDTO.Status))
                 {
-                    throw new Exception($"Inventory not found for Product ID {orderDetail.ProductId}.");
+                    if (Enum.TryParse(typeof(OrderStatus), orderUpdateDTO.Status, out var status))
+                    {
+                        order.Status = (OrderStatus)status;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
 
-                if (inventory.StockAvailable < orderDetail.Quantity)
+                if (!string.IsNullOrEmpty(orderUpdateDTO.PaymentMethod))
                 {
-                    throw new Exception($"Insufficient stock available for Product ID {orderDetail.ProductId}.");
+                    order.PaymentMethod = orderUpdateDTO.PaymentMethod;
                 }
 
-                if (product != null)
+                if (!string.IsNullOrEmpty(orderUpdateDTO.TransctionId))
                 {
-                    product.Stock -= orderDetail.Quantity;
+                    order.TransctionId = orderUpdateDTO.TransctionId;
                 }
 
-                inventory.StockSold += orderDetail.Quantity;
-                inventory.StockAvailable -= orderDetail.Quantity;
+                var updatedProducts = new List<ProductSaleDTO>();
 
-                var sale = new Sale
+                var user = await _context.Users.FindAsync(order.UserId);
+                var userName = user?.UserName ?? string.Empty;
+
+                foreach (var orderDetail in order.OrderDetails)
                 {
-                    OrderId = orderId,
-                    UserId = order.UserId,
-                    StartDate = DateTime.Now,
-                    EndDate = DateTime.Now.AddDays(3),
-                    SaleDate = DateTime.Now,
-                    TotalAmount = orderDetail.Quantity * orderDetail.Price
+                    var product = await _context.Products
+                        .FirstOrDefaultAsync(p => p.ProductId == orderDetail.ProductId);
 
+                    var inventory = await _context.Inventories
+                        .FirstOrDefaultAsync(i => i.ProductId == orderDetail.ProductId);
+
+                    if (inventory == null)
+                    {
+                        throw new Exception($"Inventory not found for Product ID {orderDetail.ProductId}.");
+                    }
+
+                    if (inventory.StockAvailable < orderDetail.Quantity)
+                    {
+                        throw new Exception($"Insufficient stock available for Product ID {orderDetail.ProductId}.");
+                    }
+
+                    if (product != null)
+                    {
+                        product.Stock -= orderDetail.Quantity;
+                    }
+
+                    inventory.StockSold += orderDetail.Quantity;
+                    inventory.StockAvailable -= orderDetail.Quantity;
+
+                    var sale = new Sale
+                    {
+                        OrderId = orderId,
+                        UserId = order.UserId,
+                        StartDate = DateTime.Now,
+                        EndDate = DateTime.Now.AddDays(3),
+                        SaleDate = DateTime.Now,
+                        TotalAmount = orderDetail.Quantity * orderDetail.Price
+
+                    };
+
+                    _context.Sales.Add(sale);
+
+                    var salesPayload = new
+                    {
+                        SaleId = sale.SalesId,
+                        orderId = sale.OrderId,
+                        userId = sale.UserId,
+                        userName = userName,
+                        saleDate = sale.SaleDate,
+                        startDate = sale.StartDate,
+                        endDate = sale.EndDate,
+                        totalAmount = sale.TotalAmount,
+                        productName = product?.ProductName
+                    };
+                    await _mqttService.PublishAsync("sales-updates", JsonConvert.SerializeObject(salesPayload));
+
+
+
+
+                    updatedProducts.Add(new ProductSaleDTO
+                    {
+                        ProductId = orderDetail.ProductId,
+                        QuantitySold = orderDetail.Quantity
+                    });
+
+                    var stockUpdateMessage = new
+                    {
+                        ProductId = product.ProductId,
+                        StockAvailable = inventory.StockAvailable,
+                        StockSold = inventory.StockSold,
+                        ProductStock = product.Stock
+                    };
+
+                    var jsonMessage = JsonConvert.SerializeObject(stockUpdateMessage);
+                    await _mqttService.PublishAsync("inventory-updates", jsonMessage);
+                }
+
+                await _context.SaveChangesAsync();
+
+                var orderMessage = new
+                {
+                    OrderId = order.OrderId,
+                    Status = order.Status.ToString(),
+                    PaymentMethod = order.PaymentMethod
                 };
 
-                _context.Sales.Add(sale);
+                var orderJsonMessage = JsonConvert.SerializeObject(orderMessage);
+                await _mqttService.PublishAsync("order/updates", orderJsonMessage);
 
-                var salesPayload = new
-                {
-                    SaleId = sale.SalesId,
-                    orderId = sale.OrderId,
-                    userId = sale.UserId,
-                    userName = userName,
-                    saleDate = sale.SaleDate,
-                    startDate = sale.StartDate,
-                    endDate = sale.EndDate,
-                    totalAmount = sale.TotalAmount,
-                    productName = product?.ProductName
-                };
-                await _mqttService.PublishAsync("sales-updates", JsonConvert.SerializeObject(salesPayload));
-
-
-
-
-                updatedProducts.Add(new ProductSaleDTO
-                {
-                    ProductId = orderDetail.ProductId,
-                    QuantitySold = orderDetail.Quantity
-                });
-
-                var stockUpdateMessage = new
-                {
-                    ProductId = product.ProductId,
-                    StockAvailable = inventory.StockAvailable,
-                    StockSold = inventory.StockSold,
-                    ProductStock = product.Stock
-                };
-
-                var jsonMessage = JsonConvert.SerializeObject(stockUpdateMessage);
-                await _mqttService.PublishAsync("inventory-updates", jsonMessage);
+                return new List<OrderDTO> { _mapper.Map<Order, OrderDTO>(order) };
             }
-
-            await _context.SaveChangesAsync();
-
-            var orderMessage = new
+            catch(Exception ex)
             {
-                OrderId = order.OrderId,
-                Status = order.Status.ToString(),
-                PaymentMethod = order.PaymentMethod
-            };
-
-            var orderJsonMessage = JsonConvert.SerializeObject(orderMessage);
-            await _mqttService.PublishAsync("order/updates", orderJsonMessage);
-
-            return new List<OrderDTO> { _mapper.Map<Order, OrderDTO>(order) };
+                throw new Exception($"An error occurred while updating the order with ID {orderId}.", ex);
+            }
         }
 
         public async Task<OrderDTO> PlaceOrderAsync(CreateOrderDTO orderDTO)
         {
-            var user = await _context.Users.FindAsync(orderDTO.UserId);
-            if (user == null)
+            try
             {
-                return null;
-            }
-
-            var order = new Order
-            {
-                UserId = orderDTO.UserId,
-                PaymentMethod = orderDTO.PaymentMethod,
-                OrderDate = DateTime.Now,
-                Status = OrderStatus.Pending,
-                OrderDetails = new List<OrderDetail>(),
-
-            };
-
-            decimal totalAmount = 0;
-
-            foreach (var item in orderDTO.Items)
-            {
-                var product = await _context.Products.FindAsync(item.ProductId);
-                if (product == null) continue;
-
-                var orderDetail = new OrderDetail
+                var user = await _context.Users.FindAsync(orderDTO.UserId);
+                if (user == null)
                 {
-                    ProductId = item.ProductId,
-                    Quantity = item.Quantity,
-                    Price = item.Price,
-                    Order = order
+                    return null;
+                }
+
+                var order = new Order
+                {
+                    UserId = orderDTO.UserId,
+                    PaymentMethod = orderDTO.PaymentMethod,
+                    OrderDate = DateTime.Now,
+                    Status = OrderStatus.Pending,
+                    OrderDetails = new List<OrderDetail>(),
+
                 };
 
-                order.OrderDetails.Add(orderDetail);
-                totalAmount += item.Price * item.Quantity;
+                decimal totalAmount = 0;
+
+                foreach (var item in orderDTO.Items)
+                {
+                    var product = await _context.Products.FindAsync(item.ProductId);
+                    if (product == null) continue;
+
+                    var orderDetail = new OrderDetail
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        Price = item.Price,
+                        Order = order
+                    };
+
+                    order.OrderDetails.Add(orderDetail);
+                    totalAmount += item.Price * item.Quantity;
+                }
+                var apiKey = Environment.GetEnvironmentVariable("RAZORPAY_KEY");
+
+                var razorpayOrder = await _razorpayService.CreateOrderAsync(totalAmount, "INR", order.OrderId.ToString());
+
+
+                if (razorpayOrder == null)
+                {
+                    return null;
+                }
+
+                order.RazorpayOrderId = razorpayOrder["id"].ToString();
+                order.TransctionId = razorpayOrder["transactionId"]?.ToString() ?? "";
+
+
+                _context.Orders.Add(order);
+                await _context.SaveChangesAsync();
+
+                var orderDTOResult = _mapper.Map<Order, OrderDTO>(order);
+
+                return orderDTOResult;
             }
-            var apiKey = Environment.GetEnvironmentVariable("RAZORPAY_KEY");
-
-            var razorpayOrder = await _razorpayService.CreateOrderAsync(totalAmount, "INR", order.OrderId.ToString());
-
-
-            if (razorpayOrder == null)
+            catch(Exception ex)
             {
-                return null;
+                throw new Exception("An error occurred while placing the order.", ex);
             }
-
-            order.RazorpayOrderId = razorpayOrder["id"].ToString();
-            order.TransctionId = razorpayOrder["transactionId"]?.ToString() ?? "";
-
-
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-
-            var orderDTOResult = _mapper.Map<Order, OrderDTO>(order);
-
-            return orderDTOResult;
         }
 
     }
