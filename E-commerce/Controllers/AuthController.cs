@@ -10,20 +10,21 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace E_commerce.Controllers
 {
     [ApiController]
     [Route("api/auth")]
-    public class AuthController:ControllerBase
+    public class AuthController : ControllerBase
     {
         private readonly IAuthServices _authServices;
         public AuthController(IAuthServices authServices)
         {
             _authServices = authServices;
         }
-
+        [AllowAnonymous]
         [HttpPost("signup")]
         public async Task<IActionResult> Signup([FromBody] UserDTO userDTO)
         {
@@ -36,14 +37,14 @@ namespace E_commerce.Controllers
 
 
 
-
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
             try
             {
                 var userDto = await _authServices.LoginAsync(loginDto);
-                return Ok(userDto);       
+                return Ok(userDto);
             }
             catch (UnauthorizedAccessException ex)
             {

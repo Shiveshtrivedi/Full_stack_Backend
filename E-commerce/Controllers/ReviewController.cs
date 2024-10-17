@@ -1,14 +1,16 @@
 ﻿using E_commerce.DTOs;
 using E_commerce.Services;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/review")]
-    public class ReviewController:ControllerBase
+    public class ReviewController : ControllerBase
     {
         private readonly IReviewServices _reviewServices;
         public ReviewController(IReviewServices reviewServices)
@@ -28,16 +30,16 @@ namespace E_commerce.Controllers
         {
             var review = await _reviewServices.GetReviewsByProductAsync(productId);
 
-            if(review==null)
-            { 
-                 return BadRequest("no review found");
+            if (review == null)
+            {
+                return BadRequest("no review found");
             }
-                return Ok(review);
+            return Ok(review);
 
         }
 
         [HttpPost("addReview")]
-        public async Task <IActionResult> AddReview(ReviewDTO reviewDTO)
+        public async Task<IActionResult> AddReview(ReviewDTO reviewDTO)
         {
             var addReview = await _reviewServices.AddReviewAsync(reviewDTO);
             return Ok(addReview);
@@ -55,7 +57,7 @@ namespace E_commerce.Controllers
 
             if (int.TryParse(userIdClaim, out int userId))
             {
-                return userId;      
+                return userId;
             }
 
             throw new FormatException("User ID format is invalid.");
@@ -70,17 +72,17 @@ namespace E_commerce.Controllers
             try
             {
 
-            var result = await _reviewServices.DeleteReviewAsync(reviewId, currentUserId);
+                var result = await _reviewServices.DeleteReviewAsync(reviewId, currentUserId);
 
-            if (result)
-            {
-                return Ok("Review deleted successfully.");
+                if (result)
+                {
+                    return Ok("Review deleted successfully.");
+                }
+
+                return NotFound("Review not found or you do not have permission to delete this review.");
+
             }
-
-            return NotFound("Review not found or you do not have permission to delete this review.");
-
-            }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

@@ -9,7 +9,7 @@ namespace E_commerce.DTOs
         public int ShippingAddressID { get; set; }
 
         public int UserId { get; set; }
-      
+
         public string AddressLine1 { get; set; } = string.Empty;
         public string? AddressLine2 { get; set; } = string.Empty;
         public int PhoneNumber { get; set; }

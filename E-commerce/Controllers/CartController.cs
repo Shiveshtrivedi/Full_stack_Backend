@@ -1,13 +1,15 @@
 ﻿using E_commerce.DTOs;
 using E_commerce.Services;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/cart")]
-    public class CartController:ControllerBase
+    public class CartController : ControllerBase
     {
         private readonly ICartServices _cartServices;
         public CartController(ICartServices cartServices)
@@ -17,10 +19,10 @@ namespace E_commerce.Controllers
 
         [HttpGet("{userId}/getCartItems")]
         public async Task<IActionResult> GetCartItem(int userId)
-         {
+        {
             var cartItem = await _cartServices.GetAllProductsFromCartAsync(userId);
 
-            if (cartItem == null || !cartItem.Any())  
+            if (cartItem == null || !cartItem.Any())
             {
                 return NotFound(new { message = "Cart is empty or user does not exist." });
             }
@@ -61,7 +63,7 @@ namespace E_commerce.Controllers
             try
             {
                 var updatedCart = await _cartServices.UpdateCartByUserAsync(userId, updateCartItemsDto);
-                return Ok(updatedCart);           
+                return Ok(updatedCart);
             }
             catch (Exception ex)
             {
@@ -76,14 +78,14 @@ namespace E_commerce.Controllers
         public async Task<IActionResult> ClearCart(int userId)
         {
             var result = await _cartServices.ClearCartItemByUserAsync(userId);
-            if(result)
+            if (result)
             {
                 return Ok("Cart cleared successfully");
             }
             else
             {
                 return BadRequest("No item are found");
-            }    
+            }
         }
 
     }

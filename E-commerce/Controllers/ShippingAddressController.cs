@@ -2,13 +2,15 @@
 using E_commerce.Models;
 using E_commerce.Services;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/shippingAddress")]
-    public class ShippingAddressController:ControllerBase
+    public class ShippingAddressController : ControllerBase
     {
         private readonly IShippingAddressServices _shippingAddressServices;
 
@@ -41,7 +43,7 @@ namespace E_commerce.Controllers
         {
             var result = await _shippingAddressServices.UpdateAddressAsync(shippingAddressId, shippingAddressDTO);
 
-            if(result)
+            if (result)
             {
                 return Ok("updated successfully");
             }
@@ -53,9 +55,9 @@ namespace E_commerce.Controllers
         {
             var result = await _shippingAddressServices.DeleteAllAddressAsync(userId);
 
-            if(result)
+            if (result)
             {
-                return Ok("all address deleted" );
+                return Ok("all address deleted");
             }
 
             return BadRequest();
@@ -66,9 +68,9 @@ namespace E_commerce.Controllers
         {
             var result = await _shippingAddressServices.DeleteAddressById(shippingAddressId);
 
-            if(result)
+            if (result)
             {
-               return Ok("addrress deletd successfully");
+                return Ok("addrress deletd successfully");
             }
 
             return NotFound("Given address not found");
@@ -76,5 +78,5 @@ namespace E_commerce.Controllers
 
 
 
-        }
     }
+}

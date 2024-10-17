@@ -2,21 +2,23 @@
 using E_commerce.DTOs;
 using E_commerce.Services;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/order")]
-    public class OrderController: ControllerBase
+    public class OrderController : ControllerBase
     {
         private readonly IOrderServices _orderServices;
 
         public OrderController(IOrderServices orderServices)
         {
             _orderServices = orderServices;
-           
+
         }
 
         [HttpGet]
@@ -31,9 +33,9 @@ namespace E_commerce.Controllers
         {
             var order = await _orderServices.GetOrderByIdAsync(id);
 
-            if(order == null)
+            if (order == null)
             {
-                return NotFound(new {message =  "No order"});
+                return NotFound(new { message = "No order" });
             }
 
             return Ok(order);
@@ -56,12 +58,12 @@ namespace E_commerce.Controllers
 
             var orderResult = await _orderServices.PlaceOrderAsync(orderDTO);
 
-            if (orderResult == null )         
+            if (orderResult == null)
             {
                 return BadRequest(new { message = "Unable to place the order" });
             }
 
-            return Ok(orderResult);      
+            return Ok(orderResult);
         }
 
 
@@ -75,7 +77,7 @@ namespace E_commerce.Controllers
                 return BadRequest(new { message = "Failed to update the order" });
             }
 
-            return Ok(updatedOrder);       
+            return Ok(updatedOrder);
         }
     }
 }

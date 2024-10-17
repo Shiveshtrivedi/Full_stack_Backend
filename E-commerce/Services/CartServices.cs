@@ -7,18 +7,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace E_commerce.Services
 {
-    public class CartServices:ICartServices
+    public class CartServices : ICartServices
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-        
-        public CartServices(DataContext context,IMapper mapper)
+
+        public CartServices(DataContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        public async Task <IEnumerable<CartDTO>> GetAllProductsFromCartAsync(int userId)
+        public async Task<IEnumerable<CartDTO>> GetAllProductsFromCartAsync(int userId)
         {
             var cart = await _context.Carts
                                  .Include(c => c.Items)
@@ -26,13 +26,13 @@ namespace E_commerce.Services
                                  .Where(c => c.UserId == userId)
                                  .FirstOrDefaultAsync();
 
-            if(cart == null)
+            if (cart == null)
             {
                 return null;
             }
 
             var cartDto = _mapper.Map<CartDTO>(cart);
-            cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price); 
+            cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
             foreach (var item in cartDto.Items)
             {
                 var product = cart.Items.FirstOrDefault(ci => ci.ProductId == item.ProductId)?.Product;
@@ -46,7 +46,7 @@ namespace E_commerce.Services
             cartDto.TotalPrice = cart.Items.Sum(ci => ci.Quantity * ci.Product.Price);
             cartDto.Quantity = cart.Items.Sum(ci => ci.Quantity);
 
-            return new List<CartDTO> { cartDto};
+            return new List<CartDTO> { cartDto };
 
         }
 
@@ -81,7 +81,7 @@ namespace E_commerce.Services
                 {
                     ProductId = productId,
                     Quantity = quantity,
-                    Product = product       
+                    Product = product
                 };
                 cart.Items.Add(newCartItem);
             }
@@ -102,7 +102,7 @@ namespace E_commerce.Services
             }
             cartDto.Quantity = cart.Items.Sum(ci => ci.Quantity);
 
-            return new CartDTO[] {cartDto};
+            return new CartDTO[] { cartDto };
         }
 
 
@@ -162,7 +162,7 @@ namespace E_commerce.Services
             if (cart == null)
                 return false;
 
-             _context.CartItems.RemoveRange(cart.Items);
+            _context.CartItems.RemoveRange(cart.Items);
             await _context.SaveChangesAsync();
 
             return true;

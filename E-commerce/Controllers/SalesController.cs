@@ -2,10 +2,12 @@
 using E_commerce.Models;
 using E_commerce.Services;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/sales")]
     public class SalesController : ControllerBase

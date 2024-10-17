@@ -6,11 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace E_commerce.Services
 {
-    public class AdminHistoryService:IAdminHistoryService
+    public class AdminHistoryService : IAdminHistoryService
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-        public AdminHistoryService(DataContext context,IMapper mapper)
+        public AdminHistoryService(DataContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
@@ -42,7 +42,7 @@ namespace E_commerce.Services
         {
             var histories = await _context.Histories
                 .Include(h => h.Product)
-                .Include(u=>u.User)
+                .Include(u => u.User)
                 .Where(h => h.UserId == userId)
                 .ToListAsync();
 
@@ -54,8 +54,8 @@ namespace E_commerce.Services
                 ActionType = h.ActionType,
                 Details = h.Details,
                 ActionDate = h.ActionDate,
-                ProductName = h.Product?.ProductName, 
-                ProductImage = h.Product?.Image ,
+                ProductName = h.Product?.ProductName,
+                ProductImage = h.Product?.Image,
                 Price = h.Product?.Price,
                 ProductId = h.Product?.ProductId
             }).ToList();
@@ -77,7 +77,6 @@ namespace E_commerce.Services
             var product = await _context.Products.FindAsync(history.ProductId);
             if (product != null && product.DeleteFlag)
             {
-                // Both flags are true, remove the product from the database
                 await DeleteProductAndHistory(historyId, product.ProductId);
             }
 
@@ -87,12 +86,12 @@ namespace E_commerce.Services
         public async Task<bool> ClearHistoryAsync(int userId)
         {
             var allHistoryRecords = await _context.Histories
-                .Where(i=>i.UserId==userId)
+                .Where(i => i.UserId == userId)
                 .ToListAsync();
 
             if (allHistoryRecords.Count == 0)
             {
-                return false; 
+                return false;
             }
 
             _context.Histories.RemoveRange(allHistoryRecords);
@@ -102,14 +101,12 @@ namespace E_commerce.Services
 
         private async Task DeleteProductAndHistory(int historyId, int productId)
         {
-            // Find and remove the history record
             var history = await _context.Histories.FindAsync(historyId);
             if (history != null)
             {
                 _context.Histories.Remove(history);
             }
 
-            // Find and remove the product record
             var product = await _context.Products.FindAsync(productId);
             if (product != null)
             {

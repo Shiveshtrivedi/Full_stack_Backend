@@ -12,7 +12,7 @@ namespace E_commerce.DTOs
         public int WishlistId { get; set; }
         public int UserId { get; set; }
 
-        public Product Product { get; set; } 
+        public Product Product { get; set; }
     }
     public class WishlistRemoveDto
     {

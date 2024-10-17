@@ -24,7 +24,7 @@ namespace E_commerce.Services
         public async Task<IEnumerable<InventoryDTO>> GetAllInventoriesAsync()
         {
             var inventories = await _context.Inventories
-                .Include(i => i.Product)     
+                .Include(i => i.Product)
                 .ToListAsync();
 
             return _mapper.Map<IEnumerable<InventoryDTO>>(inventories);
@@ -33,12 +33,12 @@ namespace E_commerce.Services
         public async Task<InventoryDTO> GetInventoryByProductIdAsync(int productId)
         {
             var inventory = await _context.Inventories
-                .Include(i => i.Product)     
+                .Include(i => i.Product)
                 .FirstOrDefaultAsync(i => i.ProductId == productId);
 
             if (inventory == null)
             {
-                return null;       
+                return null;
             }
 
             var inventoryDto = _mapper.Map<InventoryDTO>(inventory);
@@ -71,8 +71,8 @@ namespace E_commerce.Services
             var inventory = new Inventory
             {
                 ProductId = productId,
-                StockAvailable = product.Stock,      
-                StockSold = 0      
+                StockAvailable = product.Stock,
+                StockSold = 0
             };
 
             _context.Inventories.Add(inventory);
@@ -83,7 +83,7 @@ namespace E_commerce.Services
         new ProductSaleDTO
         {
             ProductId = productId,
-            QuantitySold = 0         
+            QuantitySold = 0
         }
     };
 
@@ -136,7 +136,7 @@ namespace E_commerce.Services
                 };
 
                 var jsonMessage = JsonConvert.SerializeObject(stockUpdateMessage);
-                await _mqttService.PublishAsync("inventory-updates", jsonMessage);       
+                await _mqttService.PublishAsync("inventory-updates", jsonMessage);
             }
 
             await _context.SaveChangesAsync();
@@ -156,17 +156,17 @@ namespace E_commerce.Services
                 throw new Exception("Product not found.");
             }
 
-            product.Stock += updateStockDto.AdditionalStock;      
+            product.Stock += updateStockDto.AdditionalStock;
 
             var inventory = await _context.Inventories
                 .FirstOrDefaultAsync(i => i.ProductId == updateStockDto.ProductId);
 
             if (inventory != null)
             {
-                inventory.StockAvailable += updateStockDto.AdditionalStock;     
+                inventory.StockAvailable += updateStockDto.AdditionalStock;
             }
 
-            await _context.SaveChangesAsync();        
+            await _context.SaveChangesAsync();
             return true;
         }
     }

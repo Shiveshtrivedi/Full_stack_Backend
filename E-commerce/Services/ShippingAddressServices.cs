@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace E_commerce.Services
 {
-    public class ShippingAddressServices:IShippingAddressServices
+    public class ShippingAddressServices : IShippingAddressServices
     {
         private readonly DataContext _context;
 
@@ -57,15 +57,15 @@ namespace E_commerce.Services
             return shippingAddressDto;
         }
 
-        public async Task<bool> UpdateAddressAsync(int shippingAddressId , ShippingAddressDTO updateAddress)
+        public async Task<bool> UpdateAddressAsync(int shippingAddressId, ShippingAddressDTO updateAddress)
         {
             var shippingAddress = await _context.ShippingAddresses.FirstOrDefaultAsync(x => x.ShippingAddressID == shippingAddressId);
             if (shippingAddress == null)
                 return false;
 
             shippingAddress.AddressLine1 = updateAddress.AddressLine1;
-            if(updateAddress.AddressLine2!=null)
-            shippingAddress.AddressLine2 = updateAddress.AddressLine2;
+            if (updateAddress.AddressLine2 != null)
+                shippingAddress.AddressLine2 = updateAddress.AddressLine2;
             shippingAddress.City = updateAddress.City;
             shippingAddress.State = updateAddress.State;
             shippingAddress.ZipCode = updateAddress.ZipCode;
@@ -78,7 +78,7 @@ namespace E_commerce.Services
 
         public async Task<bool> DeleteAllAddressAsync(int userId)
         {
-            var address =  await _context.ShippingAddresses.Where(x => x.UserId == userId).ToListAsync();
+            var address = await _context.ShippingAddresses.Where(x => x.UserId == userId).ToListAsync();
 
             if (address == null)
                 return false;
@@ -91,10 +91,10 @@ namespace E_commerce.Services
 
         public async Task<bool> DeleteAddressById(int shippingAddressId)
         {
-            var address = await _context.ShippingAddresses.FirstOrDefaultAsync(x => x.ShippingAddressID == shippingAddressId);            
+            var address = await _context.ShippingAddresses.FirstOrDefaultAsync(x => x.ShippingAddressID == shippingAddressId);
             if (address == null)
                 return false;
-             _context.ShippingAddresses.Remove(address);
+            _context.ShippingAddresses.Remove(address);
             await _context.SaveChangesAsync();
             return true;
         }

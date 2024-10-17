@@ -16,7 +16,7 @@ namespace E_commerce.Services
         private readonly IMapper _mapper;
         private readonly RazorpayService _razorpayService;
         private readonly MQTTService _mqttService;
-        public OrderServices(DataContext context, IMapper mapper,RazorpayService razorpayService, MQTTService mqttService)
+        public OrderServices(DataContext context, IMapper mapper, RazorpayService razorpayService, MQTTService mqttService)
         {
             _context = context;
             _mapper = mapper;
@@ -27,11 +27,11 @@ namespace E_commerce.Services
         public async Task<IEnumerable<OrderDTO>> GetAllOrdersAsync()
         {
             var orders = await _context.Orders
-                .Include(o => o.User)  
-                .Include(o => o.ShippingAddress)      
-                .Include(o => o.OrderDetails)    
-                    .ThenInclude(od => od.Product)       
-                .ToListAsync(); 
+                .Include(o => o.User)
+                .Include(o => o.ShippingAddress)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .ToListAsync();
 
             return _mapper.Map<IEnumerable<Order>, IEnumerable<OrderDTO>>(orders);
         }
@@ -89,7 +89,7 @@ namespace E_commerce.Services
 
             if (order == null)
             {
-                return null;        
+                return null;
             }
 
             if (!string.IsNullOrEmpty(orderUpdateDTO.Status))
@@ -100,7 +100,7 @@ namespace E_commerce.Services
                 }
                 else
                 {
-                    return null;     
+                    return null;
                 }
             }
 
@@ -139,7 +139,7 @@ namespace E_commerce.Services
 
                 if (product != null)
                 {
-                    product.Stock -= orderDetail.Quantity;    
+                    product.Stock -= orderDetail.Quantity;
                 }
 
                 inventory.StockSold += orderDetail.Quantity;
@@ -148,26 +148,26 @@ namespace E_commerce.Services
                 var sale = new Sale
                 {
                     OrderId = orderId,
-                    UserId = order.UserId,         
+                    UserId = order.UserId,
                     StartDate = DateTime.Now,
                     EndDate = DateTime.Now.AddDays(3),
                     SaleDate = DateTime.Now,
-                    TotalAmount = orderDetail.Quantity * orderDetail.Price       
-                    
+                    TotalAmount = orderDetail.Quantity * orderDetail.Price
+
                 };
 
                 _context.Sales.Add(sale);
 
                 var salesPayload = new
                 {
-                    SaleId = sale.SalesId,          
+                    SaleId = sale.SalesId,
                     orderId = sale.OrderId,
                     userId = sale.UserId,
                     userName = userName,
                     saleDate = sale.SaleDate,
                     startDate = sale.StartDate,
                     endDate = sale.EndDate,
-                    totalAmount = sale.TotalAmount, 
+                    totalAmount = sale.TotalAmount,
                     productName = product?.ProductName
                 };
                 await _mqttService.PublishAsync("sales-updates", JsonConvert.SerializeObject(salesPayload));
@@ -186,11 +186,11 @@ namespace E_commerce.Services
                     ProductId = product.ProductId,
                     StockAvailable = inventory.StockAvailable,
                     StockSold = inventory.StockSold,
-                    ProductStock = product.Stock        
+                    ProductStock = product.Stock
                 };
 
                 var jsonMessage = JsonConvert.SerializeObject(stockUpdateMessage);
-                await _mqttService.PublishAsync("inventory-updates", jsonMessage);    
+                await _mqttService.PublishAsync("inventory-updates", jsonMessage);
             }
 
             await _context.SaveChangesAsync();
@@ -203,7 +203,7 @@ namespace E_commerce.Services
             };
 
             var orderJsonMessage = JsonConvert.SerializeObject(orderMessage);
-            await _mqttService.PublishAsync("order/updates", orderJsonMessage);    
+            await _mqttService.PublishAsync("order/updates", orderJsonMessage);
 
             return new List<OrderDTO> { _mapper.Map<Order, OrderDTO>(order) };
         }
@@ -220,7 +220,7 @@ namespace E_commerce.Services
             var user = await _context.Users.FindAsync(orderDTO.UserId);
             if (user == null)
             {
-                return null;    
+                return null;
             }
 
             var order = new Order
@@ -233,12 +233,12 @@ namespace E_commerce.Services
 
             };
 
-            decimal totalAmount = 0;    
+            decimal totalAmount = 0;
 
             foreach (var item in orderDTO.Items)
             {
                 var product = await _context.Products.FindAsync(item.ProductId);
-                if (product == null) continue;        
+                if (product == null) continue;
 
                 var orderDetail = new OrderDetail
                 {
@@ -249,7 +249,7 @@ namespace E_commerce.Services
                 };
 
                 order.OrderDetails.Add(orderDetail);
-                totalAmount += item.Price * item.Quantity;    
+                totalAmount += item.Price * item.Quantity;
             }
             var apiKey = Environment.GetEnvironmentVariable("RAZORPAY_KEY");
 
@@ -258,11 +258,11 @@ namespace E_commerce.Services
 
             if (razorpayOrder == null)
             {
-                return null;         
+                return null;
             }
 
             order.RazorpayOrderId = razorpayOrder["id"].ToString();
-            order.TransctionId = razorpayOrder["transactionId"]?.ToString() ?? ""; 
+            order.TransctionId = razorpayOrder["transactionId"]?.ToString() ?? "";
 
 
             _context.Orders.Add(order);

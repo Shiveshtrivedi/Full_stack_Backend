@@ -23,12 +23,14 @@ namespace E_commerce.Models
 
         public List<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
-       public int? ShippingAddressID { get; set; }
+        public int? ShippingAddressID { get; set; }
         public ShippingAddress? ShippingAddress { get; set; }
         public string? PaymentMethod { get; set; } = string.Empty;
 
         public string RazorpayOrderId { get; set; }
-        public string? TransctionId { get; set; 
+        public string? TransctionId
+        {
+            get; set;
         }
 
     }
@@ -36,7 +38,7 @@ namespace E_commerce.Models
     public class OrderDetail
     {
         public int OrderDetailId { get; set; }
-        
+
         public int OrderId { get; set; }
         public Order? Order { get; set; }
 

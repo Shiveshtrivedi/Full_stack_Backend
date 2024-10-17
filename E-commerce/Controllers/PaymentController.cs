@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using E_commerce.Services;       
+using E_commerce.Services;
 using Razorpay.Api;
-using E_commerce.Utils;     
+using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/payment")]
     public class PaymentController : ControllerBase
@@ -30,7 +32,7 @@ namespace E_commerce.Controllers
 
                 return Ok(new
                 {
-                    orderId = order["id"].ToString(),       
+                    orderId = order["id"].ToString(),
                     amount = order["amount"],
                     currency = order["currency"]
                 });
@@ -44,8 +46,8 @@ namespace E_commerce.Controllers
     public class CreateOrderRequest
     {
         public decimal Amount { get; set; }
-        public string Currency { get; set; } = "INR";   
-        public string Receipt { get; set; } = "order_rcptid_11";   
+        public string Currency { get; set; } = "INR";
+        public string Receipt { get; set; } = "order_rcptid_11";
     }
 
 }

@@ -23,10 +23,10 @@ namespace E_commerce.Services
         {
             var product = await _context.Products.Where(p => !p.DeleteFlag).ToListAsync();
 
-            return  product;
+            return product;
         }
 
-        public async Task<Product> CreateProductAsync(ProductDTO productDTO,int userId)
+        public async Task<Product> CreateProductAsync(ProductDTO productDTO, int userId)
         {
             var product = new Product
             {
@@ -49,7 +49,7 @@ namespace E_commerce.Services
                 ActionType = "Add Product",
                 Details = $"Product '{product.ProductName}' was added.",
                 ActionDate = DateTime.Now,
-                UserId = userId, 
+                UserId = userId,
                 ProductId = product.ProductId,
                 IsAdminAction = true
             };
@@ -94,7 +94,7 @@ namespace E_commerce.Services
             }
 
             await _context.Products.AddRangeAsync(products);
-            await _context.SaveChangesAsync();      
+            await _context.SaveChangesAsync();
 
             foreach (var product in products)
             {
@@ -104,7 +104,7 @@ namespace E_commerce.Services
                     Details = $"Product '{product.ProductName}' was added.",
                     ActionDate = DateTime.Now,
                     UserId = product.UserId,
-                    ProductId = product.ProductId,    
+                    ProductId = product.ProductId,
                     IsAdminAction = true
                 };
 
@@ -123,7 +123,7 @@ namespace E_commerce.Services
                 return null;
 
             return product;
-        
+
         }
 
         public async Task<IEnumerable<Product>> GetProductByUserIdAsync(int userId)
@@ -131,13 +131,13 @@ namespace E_commerce.Services
             var products = await _context.Products
                                                   .Where(p => p.UserId == userId)
                                                   .ToListAsync();
-            if(products == null)
+            if (products == null)
                 return null;
 
             return products;
         }
 
-        public async Task<Product> UpdateProductAsync(ProductDTO productDto,int id)
+        public async Task<Product> UpdateProductAsync(ProductDTO productDto, int id)
         {
             var findProduct = await _context.Products.FindAsync(id);
             var existingUser = await _context.Users.FindAsync(productDto.UserId);
@@ -154,7 +154,7 @@ namespace E_commerce.Services
 
             var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == id);
 
-            if(inventory!=null)
+            if (inventory != null)
             {
                 inventory.StockAvailable = productDto.Stock;
             }
@@ -166,26 +166,16 @@ namespace E_commerce.Services
         public async Task<Product> DeleteProductAsync(int id)
         {
             var findProduct = await _context.Products.FindAsync(id);
-            
+
             if (findProduct == null)
                 return null;
 
             findProduct.DeleteFlag = true;
             await _context.SaveChangesAsync();
 
-            //var inventory = await _context.Inventories.FirstOrDefaultAsync(i => i.ProductId == id);
-            //if (inventory != null)
-            //{
-            //    _context.Inventories.Remove(inventory);         
-            //}
-
-            //_context.Products.Remove(findProduct);
-            //await _context.SaveChangesAsync();
-
             var history = await _context.Histories.FirstOrDefaultAsync(h => h.ProductId == id);
             if (history != null && history.DeleteFlag)
             {
-                // Both flags are true, remove the product and history from the database
                 await DeleteProductAndHistory(history.HistoryId, id);
             }
 
@@ -194,14 +184,12 @@ namespace E_commerce.Services
 
         private async Task DeleteProductAndHistory(int historyId, int productId)
         {
-            // Find and remove the history record
             var history = await _context.Histories.FindAsync(historyId);
             if (history != null)
             {
                 _context.Histories.Remove(history);
             }
 
-            // Find and remove the product record
             var product = await _context.Products.FindAsync(productId);
             if (product != null)
             {

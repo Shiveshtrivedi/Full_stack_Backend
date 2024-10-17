@@ -13,7 +13,7 @@ using BCr = BCrypt.Net;
 
 namespace E_commerce.Services
 {
-   
+
     public class AuthServices : IAuthServices
     {
         private readonly DataContext _context;
@@ -63,7 +63,7 @@ namespace E_commerce.Services
             }
 
             bool isAdmin = userDTO.Email.EndsWith("@intimetec.com", StringComparison.OrdinalIgnoreCase);
-           
+
             var passwordHash = PasswordHasher.HashPassword(userDTO.Password);
 
             var newUser = new User
@@ -119,7 +119,7 @@ namespace E_commerce.Services
             catch (Exception ex)
             {
                 Console.Error.WriteLine($"Login error: {ex.Message}");
-                throw;     
+                throw;
             }
         }
 

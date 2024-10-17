@@ -1,12 +1,14 @@
 ﻿using E_commerce.Services;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [Route("api/revenue")]
     [ApiController]
-    public class RevenueController: ControllerBase
+    public class RevenueController : ControllerBase
     {
         private readonly IRevenueService _revenueService;
 

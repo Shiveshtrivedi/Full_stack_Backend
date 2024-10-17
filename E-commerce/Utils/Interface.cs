@@ -10,7 +10,7 @@ namespace E_commerce.Utils
         Task<UserDTO> GetUserByIdAsync(int id);
         Task<UserDTO> CreateUserAsync(UserDTO userDTO);
         Task<UserDTO> DeleteUserAsync(int id);
-        Task<UserDTO> UpdateUserAsyncWithPassword(int id,UserDTO userDTO);
+        Task<UserDTO> UpdateUserAsyncWithPassword(int id, UserDTO userDTO);
         Task<UserDTO> UpdateUserAsync(int id, UpdateUserDTO updateUserDTO);
 
     }
@@ -18,11 +18,11 @@ namespace E_commerce.Utils
     public interface IProductServices
     {
         Task<IEnumerable<E_commerce.Models.Product>> GetAllProductsAsync();
-        Task<E_commerce.Models.Product> CreateProductAsync(ProductDTO productDTO,int userId);
+        Task<E_commerce.Models.Product> CreateProductAsync(ProductDTO productDTO, int userId);
         Task<List<E_commerce.Models.Product>> AddProductsAsync(List<ProductDTO> productDtos);
         Task<E_commerce.Models.Product> GetProductByIdAsync(int id);
         Task<IEnumerable<E_commerce.Models.Product>> GetProductByUserIdAsync(int userId);
-        Task<E_commerce.Models.Product> UpdateProductAsync(ProductDTO productDto,int id);
+        Task<E_commerce.Models.Product> UpdateProductAsync(ProductDTO productDto, int id);
         Task<E_commerce.Models.Product> DeleteProductAsync(int id);
     }
 
@@ -57,7 +57,7 @@ namespace E_commerce.Utils
         Task<List<ReviewDTO>> GetAllReviewsAsync();
         Task<List<ReviewDTO>> GetReviewsByProductAsync(int productId);
         Task<ReviewDTO> AddReviewAsync(ReviewDTO reviewDto);
-        Task<bool> DeleteReviewAsync(int reviewId,int userId);
+        Task<bool> DeleteReviewAsync(int reviewId, int userId);
     }
 
     public interface IAuthServices
@@ -86,7 +86,7 @@ namespace E_commerce.Utils
     }
     public interface IRevenueService
     {
-        Task <List<RevenueDTO>> CalculateTotalRevenueAsync();
+        Task<List<RevenueDTO>> CalculateTotalRevenueAsync();
         Task<RevenueDTO> GetRevenueByDateAsync(DateTime date);
         Task<RevenueByDateDTO> GetRevenueByDateRangeAsync(DateTime startDate, DateTime endDate);
     }

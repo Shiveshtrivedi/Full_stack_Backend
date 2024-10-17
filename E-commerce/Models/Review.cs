@@ -17,10 +17,10 @@ namespace E_commerce.Models
         public User User { get; set; }
 
         [Required]
-        [Range(1,5)]
+        [Range(1, 5)]
         public int Rating { get; set; }
         [Required]
         public string Comment { get; set; } = string.Empty;
         public DateTime ReviewDate { get; set; }
-        }
+    }
 }

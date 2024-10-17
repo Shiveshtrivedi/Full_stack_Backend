@@ -25,7 +25,7 @@ namespace E_commerce.Services
 
             var options = new Dictionary<string, object>
             {
-                { "amount", amount * 100 },         
+                { "amount", amount * 100 },
                 { "currency", currency },
                 { "receipt", receipt },
                 { "payment_capture", 1 }
@@ -34,7 +34,7 @@ namespace E_commerce.Services
             Razorpay.Api.Order order = client.Order.Create(options);
 
             string orderJson = JsonConvert.SerializeObject(order.Attributes, Formatting.Indented);
-            
+
             return order;
         }
     }

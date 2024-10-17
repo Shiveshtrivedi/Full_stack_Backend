@@ -20,7 +20,7 @@ namespace E_commerce.DTOs
 
         public double? Rating { get; set; } = 0.0;
 
-        public int UserId { get; set; } 
+        public int UserId { get; set; }
         public decimal CostPrice { get; set; }
         public decimal SellingPrice { get; set; }
     }

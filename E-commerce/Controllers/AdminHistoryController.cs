@@ -1,9 +1,11 @@
 ﻿using E_commerce.DTOs;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/history")]
     public class AdminHistoryController : ControllerBase

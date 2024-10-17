@@ -1,12 +1,14 @@
 ﻿using E_commerce.Services;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/wishlist")]
-    public class WishListController :ControllerBase
+    public class WishListController : ControllerBase
     {
         private readonly IWishListServices _wishListServices;
         public WishListController(IWishListServices wishListServices)
@@ -18,7 +20,7 @@ namespace E_commerce.Controllers
         public async Task<IActionResult> GetWishListByUserId(int userId)
         {
             var wishList = await _wishListServices.GetUserWishlist(userId);
-            if(wishList == null)
+            if (wishList == null)
             {
                 return BadRequest(new { message = "wishlist is empty" });
             }
@@ -26,7 +28,7 @@ namespace E_commerce.Controllers
         }
 
         [HttpPost("{userId}/add/{productId}/addProductToWishList")]
-        public async Task<IActionResult> AddToWishList(int userId,int productId)
+        public async Task<IActionResult> AddToWishList(int userId, int productId)
         {
             try
             {
@@ -41,7 +43,7 @@ namespace E_commerce.Controllers
             }
         }
         [HttpDelete("{userId}/remove/{productId}/removeProductFromWishList")]
-        public async Task<IActionResult> RemoveFromWishList(int userId,int productId)
+        public async Task<IActionResult> RemoveFromWishList(int userId, int productId)
         {
             try
             {

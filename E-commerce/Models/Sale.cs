@@ -5,7 +5,7 @@ namespace E_commerce.Models
 {
     public class Sale
     {
-        [Key] 
+        [Key]
         public int SalesId { get; set; }
         public int OrderId { get; set; }
         public Order? Order { get; set; }

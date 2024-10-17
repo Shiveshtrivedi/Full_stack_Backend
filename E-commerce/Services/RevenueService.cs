@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace E_commerce.Services
 {
-    public class RevenueService:IRevenueService
+    public class RevenueService : IRevenueService
     {
         private readonly DataContext _context;
 
@@ -17,11 +17,11 @@ namespace E_commerce.Services
         public async Task<List<RevenueDTO>> CalculateTotalRevenueAsync()
         {
             var revenueData = await _context.Sales
-         .GroupBy(s => s.SaleDate.Date)       
+         .GroupBy(s => s.SaleDate.Date)
          .Select(g => new RevenueDTO
          {
-             Date = g.Key,     
-             TotalRevenue = g.Sum(s => s.TotalAmount)       
+             Date = g.Key,
+             TotalRevenue = g.Sum(s => s.TotalAmount)
          })
          .ToListAsync();
 

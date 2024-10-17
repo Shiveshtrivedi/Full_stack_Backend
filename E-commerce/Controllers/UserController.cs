@@ -4,17 +4,19 @@ using E_commerce.DTOs;
 using E_commerce.Models;
 using E_commerce.Services;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/user")]
     public class UserController : ControllerBase
     {
         private readonly IUserServices _userServices;
-        public UserController(IUserServices userServices) 
+        public UserController(IUserServices userServices)
         {
             _userServices = userServices;
         }
@@ -29,7 +31,7 @@ namespace E_commerce.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser(UserDTO userDto)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
@@ -42,7 +44,7 @@ namespace E_commerce.Controllers
         public async Task<IActionResult> GetUserById(int id)
         {
             var findUser = await _userServices.GetUserByIdAsync(id);
-            if(findUser == null)
+            if (findUser == null)
             {
                 return NotFound();
             }

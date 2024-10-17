@@ -2,16 +2,18 @@
 using E_commerce.Models;
 using E_commerce.Services;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/product")]
-    public class ProductController:ControllerBase
+    public class ProductController : ControllerBase
     {
         private readonly IProductServices _productServices;
-        
+
         public ProductController(IProductServices productServices)
         {
             _productServices = productServices;
@@ -21,7 +23,7 @@ namespace E_commerce.Controllers
         public async Task<IActionResult> GetProducts()
         {
             var products = await _productServices.GetAllProductsAsync();
-            
+
             return Ok(products);
         }
         [HttpGet("/api/product/user/{userId}/getProductByUserIdForHistory")]
@@ -44,14 +46,14 @@ namespace E_commerce.Controllers
         }
 
         [HttpPost("{userId}/addProductByUserId")]
-        public async Task<IActionResult> CreateProduct(ProductDTO productDTO,int userId)
+        public async Task<IActionResult> CreateProduct(ProductDTO productDTO, int userId)
         {
-            var createdProduct = await _productServices.CreateProductAsync(productDTO,userId);
+            var createdProduct = await _productServices.CreateProductAsync(productDTO, userId);
 
             if (productDTO.Rating > 5)
                 return BadRequest();
 
-            return CreatedAtAction(nameof(GetProducts),new {id = productDTO.ProductId},createdProduct);
+            return CreatedAtAction(nameof(GetProducts), new { id = productDTO.ProductId }, createdProduct);
         }
 
         [HttpPost("add-multiple-products")]
@@ -73,10 +75,10 @@ namespace E_commerce.Controllers
         }
 
         [HttpPut("{id}/updateProduct")]
-        public async Task<IActionResult> UpdateProduct(ProductDTO product,int id)
+        public async Task<IActionResult> UpdateProduct(ProductDTO product, int id)
         {
             var foundProduct = await _productServices.UpdateProductAsync(product, id);
-            if(foundProduct==null)
+            if (foundProduct == null)
             {
                 return NotFound();
             }

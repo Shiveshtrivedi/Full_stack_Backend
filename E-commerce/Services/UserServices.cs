@@ -4,7 +4,7 @@ using E_commerce.DTOs;
 using E_commerce.Utils;
 using E_commerce.Models;
 using Microsoft.EntityFrameworkCore;
-using BCr=BCrypt.Net;
+using BCr = BCrypt.Net;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace E_commerce.Services
@@ -37,7 +37,7 @@ namespace E_commerce.Services
         {
             var users = await _context.Users.ToListAsync();
             var userDTOs = _mapper.Map<IEnumerable<UserDTO>>(users);
-           
+
             return _mapper.Map<IEnumerable<UserDTO>>(users);
         }
 
@@ -61,7 +61,7 @@ namespace E_commerce.Services
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
-            {                
+            {
                 throw new Exception("An error occurred while creating the user.", ex);
             }
 
@@ -72,7 +72,7 @@ namespace E_commerce.Services
         {
             var user = await _context.Users.FindAsync(id);
 
-            if(id==' ')
+            if (id == ' ')
             {
                 return null;
             }
@@ -82,7 +82,7 @@ namespace E_commerce.Services
 
         public async Task<UserDTO> DeleteUserAsync(int id)
         {
-            var user = await _context.Users.FindAsync(id);            
+            var user = await _context.Users.FindAsync(id);
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
@@ -124,7 +124,7 @@ namespace E_commerce.Services
             }
             catch (DbUpdateException ex)
             {
-                throw;     
+                throw;
             }
 
             return _mapper.Map<UserDTO>(existingUser);
@@ -164,7 +164,7 @@ namespace E_commerce.Services
             catch (DbUpdateException ex)
             {
                 Console.Error.WriteLine($"Error occurred while updating user: {ex}");
-                throw;     
+                throw;
             }
 
             return _mapper.Map<UserDTO>(existingUser);

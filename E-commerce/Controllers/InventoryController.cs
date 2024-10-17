@@ -1,12 +1,14 @@
 ﻿using E_commerce.DTOs;
 using E_commerce.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/inventory")]
-    public class InventoryController:ControllerBase
+    public class InventoryController : ControllerBase
     {
         private readonly IInventoryService _inventoryService;
 
@@ -59,7 +61,7 @@ namespace E_commerce.Controllers
 
             var updatedProducts = await _inventoryService.UpdateStockAsync(updateStockDto);
 
-            return Ok(updatedProducts);          
+            return Ok(updatedProducts);
         }
 
 
@@ -76,7 +78,7 @@ namespace E_commerce.Controllers
             {
                 return NotFound();
             }
-            return NoContent();        
+            return NoContent();
         }
 
 
