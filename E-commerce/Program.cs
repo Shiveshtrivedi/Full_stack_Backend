@@ -20,44 +20,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
-
-DotNetEnv.Env.Load();
-
-//var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DBCon");
-
-//if (string.IsNullOrEmpty(connectionString))
-//{
-//    throw new Exception("Connection string not found. Ensure the .env file is correctly configured and placed in the root directory.");
-//}
-//Add connection string to the applications configuration system
-
-//builder.Configuration.AddInMemoryCollection(new Dictionary<string, string>
-//{ {"ConnectionStrings:DBCon", connectionString }
-//});
-
-
-
 var dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
 var dbName = Environment.GetEnvironmentVariable("DB_NAME");
 var connectionString = $"Server={dbServer};Database={dbName};Trusted_Connection=True;TrustServerCertificate=True;";
 
 
-//var dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
-//var dbName = Environment.GetEnvironmentVariable("DB_NAME");
 
-Console.WriteLine($"DB_SERVER: {dbServer}");
-Console.WriteLine($"DB_NAME: {dbName}");
-
-
-// Build the connection string
-//var connectionString = $"Server={dbServer};Database={dbName};Trusted_Connection=True;";
-Console.WriteLine($"server name {dbName} {dbServer} {connectionString}");
 
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Logging.ClearProviders(); // Optional: Clear default logging providers
-builder.Logging.AddConsole(); // Optional: Add console logging
-builder.Logging.SetMinimumLevel(LogLevel.Information); // Set minimum log level
+builder.Logging.ClearProviders();      
+builder.Logging.AddConsole();     
+builder.Logging.SetMinimumLevel(LogLevel.Information);     
 
 var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
 logger.LogInformation($"Server name: {dbServer}");
@@ -114,7 +88,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-//var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
 builder.Services.Configure<RazorpayConfig>(builder.Configuration.GetSection("RazorpayConfig"));
 
 builder.Services.AddSingleton<RazorpayService>();
@@ -143,10 +116,6 @@ builder.Services.AddSwaggerGen(options =>
         Array.Empty<string>()
     }});
 });
-
-Console.WriteLine($"Issuer: {jwtSettings["Issuer"]}");
-Console.WriteLine($"Audience: {jwtSettings["Audience"]}");
-Console.WriteLine($"Key: {Convert.ToBase64String(key)}");
 
 
 
@@ -179,13 +148,7 @@ app.UseStaticFiles();
 
 var mqttService = app.Services.GetRequiredService<MQTTService>();
 await mqttService.ConnectAsync("ws://localhost:9001", 1883);
-//await mqttService.ConnectAsync();
-
 app.Run();
 
 
 
-//{
-//    "email": "shivesh@intimetec.com",
-//  "password": "Test@123"
-//}

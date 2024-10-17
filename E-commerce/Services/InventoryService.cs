@@ -33,8 +33,16 @@ namespace E_commerce.Services
         public async Task<InventoryDTO> GetInventoryByProductIdAsync(int productId)
         {
             var inventory = await _context.Inventories
-                .Include(i => i.Product)
-                .FirstOrDefaultAsync(i => i.ProductId == productId);
+    .Where(i => i.ProductId == productId)
+    .Select(i => new InventoryDTO
+    {
+        ProductId = i.ProductId,
+        ProductName = i.Product.ProductName, 
+        StockAvailable = i.StockAvailable,
+        StockSold = i.StockSold
+    })
+    .FirstOrDefaultAsync();
+
 
             if (inventory == null)
             {

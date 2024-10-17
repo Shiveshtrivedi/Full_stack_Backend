@@ -35,15 +35,15 @@ namespace E_commerce.Context
 
             modelBuilder.Entity<OrderDetail>()
                 .Property(od => od.Price)
-                .HasColumnType("decimal(18,2)");  // Set precision and scale for Price in OrderDetail
+                .HasColumnType("decimal(18,2)");          
 
             modelBuilder.Entity<Sale>()
                 .Property(s => s.TotalAmount)
-                .HasColumnType("decimal(18,2)");  // Set precision for TotalAmount in Sale
+                .HasColumnType("decimal(18,2)");        
 
             modelBuilder.Entity<Revenue>()
                 .Property(r => r.TotalRevenue)
-                .HasColumnType("decimal(18,2)");  // Set precision for TotalRevenue in Revenue
+                .HasColumnType("decimal(18,2)");        
 
             modelBuilder.Entity<Inventory>()
                .HasOne(i => i.Product)

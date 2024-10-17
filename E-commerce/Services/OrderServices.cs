@@ -208,13 +208,6 @@ namespace E_commerce.Services
             return new List<OrderDTO> { _mapper.Map<Order, OrderDTO>(order) };
         }
 
-
-
-
-
-
-
-
         public async Task<OrderDTO> PlaceOrderAsync(CreateOrderDTO orderDTO)
         {
             var user = await _context.Users.FindAsync(orderDTO.UserId);
