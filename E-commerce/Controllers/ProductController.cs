@@ -20,9 +20,11 @@ namespace E_commerce.Controllers
         }
 
         [HttpGet("all/fetchProducts")]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 9)
         {
-            var products = await _productServices.GetAllProductsAsync();
+            var (products,totalCount) = await _productServices.GetAllProductsAsync(pageNumber,pageSize);
+
+           
 
             return Ok(products);
         }

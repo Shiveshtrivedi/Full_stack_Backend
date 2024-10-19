@@ -21,11 +21,31 @@ namespace E_commerce.Services
             _mqttService = mqttService;
         }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync()
+        public async Task<int> GetAllProductsCountAsync()
         {
             try
             {
-                return await _context.Products.Where(p => !p.DeleteFlag).ToListAsync();
+                return await _context.Products.CountAsync(p => !p.DeleteFlag);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while counting products.", ex);
+            }
+        }
+
+
+        public async Task<(IEnumerable<Product> Products,int TotalCount)> GetAllProductsAsync(int pageNumber, int pageSize)
+        {
+            try
+            {
+                var products=  await _context.Products
+                    .Where(p => !p.DeleteFlag)
+                    .Skip((pageNumber-1)*pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+
+                var totalCount = await _context.Products.CountAsync(p=>!p.DeleteFlag);
+                return (products, totalCount);
             }
             catch (Exception ex)
             {

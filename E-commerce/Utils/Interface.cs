@@ -17,7 +17,8 @@ namespace E_commerce.Utils
 
     public interface IProductServices
     {
-        Task<IEnumerable<E_commerce.Models.Product>> GetAllProductsAsync();
+        Task<int> GetAllProductsCountAsync();
+        Task<(IEnumerable<E_commerce.Models.Product> Products, int TotalCount)> GetAllProductsAsync(int pageNumber, int pageSize);
         Task<E_commerce.Models.Product> CreateProductAsync(ProductDTO productDTO, int userId);
         Task<List<E_commerce.Models.Product>> AddProductsAsync(List<ProductDTO> productDtos);
         Task<E_commerce.Models.Product> GetProductByIdAsync(int id);
