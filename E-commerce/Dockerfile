@@ -18,7 +18,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 
 RUN pwd 
-RUN ls -la /src/E-commerce/
+RUN ls -la /src
+RUN ls -la /src/E-commerce
+RUN ls -la /src/E-commerce/Configurations
 
 # Copy the Mosquitto configuration file from the project directory
 COPY Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
