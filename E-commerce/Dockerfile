@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 # Copy the Mosquitto configuration file from the project directory
 COPY mosquitto.conf /etc/mosquitto/mosquitto.conf
 
+
 # Create the necessary directories for Mosquitto
 RUN mkdir -p /run/mosquitto && chown mosquitto:mosquitto /run/mosquitto
 
