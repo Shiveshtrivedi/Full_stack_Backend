@@ -23,7 +23,7 @@ RUN ls -la /src/E-commerce
 RUN ls -la /src/E-commerce/Configurations
 
 # Copy the Mosquitto configuration file from the project directory
-COPY src/E-commerce/Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
+#COPY src/E-commerce/Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
 
 
 # Create the necessary directories for Mosquitto
@@ -37,4 +37,5 @@ COPY --from=publish /app/publish .
 EXPOSE 80 1883 9001
 
 # Start Mosquitto in the foreground and the .NET application
-CMD mosquitto -c /etc/mosquitto/mosquitto.conf & dotnet E-commerce.dll
+CMD mosquitto & dotnet E-commerce.dll
+#-c /etc/mosquitto/mosquitto.conf 
