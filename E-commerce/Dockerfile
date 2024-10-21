@@ -25,8 +25,9 @@ RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 RUN mkdir -p /run/mosquitto && chown mosquitto:mosquitto /run/mosquitto
 
 # Copy the Mosquitto configuration file from the root directory
-COPY mosquitto /etc/mosquitto/mosquitto.conf
 
+
+COPY ./mosquitto.conf /mosquitto/config/mosquitto.conf
 # Copy the published .NET application
 WORKDIR /app
 COPY --from=publish /app/publish .
