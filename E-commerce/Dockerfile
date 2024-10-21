@@ -18,16 +18,18 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 
 RUN pwd 
+RUN ls app/publish/
 #RUN ls -la 
 #RUN ls -la /E-commerce
 #RUN ls -la /E-commerce/Configurations
 
 # Copy the Mosquitto configuration file from the project directory
-COPY /app/publish/Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
+#COPY /app/publish/Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
 
 
 # Create the necessary directories for Mosquitto
 RUN mkdir -p /run/mosquitto && chown mosquitto:mosquitto /run/mosquitto
+
 
 # Copy the published .NET application
 WORKDIR /app
