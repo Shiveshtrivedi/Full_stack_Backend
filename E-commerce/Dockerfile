@@ -29,6 +29,7 @@ RUN ls -la /app/publish/Configurations
 #COPY /app/publish/Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
 RUN mkdir -p /app/publish/Configurations/mosquitto.conf
 COPY ./mosquitto.conf  /etc/mosquitto/mosquitto.conf
+COPY /Configurations/mosquitto.conf /app/publish/Configurations/mosquitto.conf
 COPY ./Configurations/mosquitto.conf /app/publish/Configurations/mosquitto.conf
 
 
