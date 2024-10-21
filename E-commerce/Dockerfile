@@ -30,8 +30,6 @@ RUN ls -la /app/publish/Configurations
 RUN mkdir -p /app/publish/Configurations/mosquitto.conf
 RUN mkdir -p /Configurations/mosquitto.conf
 COPY ./mosquitto.conf  /etc/mosquitto/mosquitto.conf
-COPY  /app/publish/Configurations/mosquitto.conf /Configurations/mosquitto.conf
-COPY ./Configurations/mosquitto.conf /app/publish/Configurations/mosquitto.conf
 
 
 # Create the necessary directories for Mosquitto
