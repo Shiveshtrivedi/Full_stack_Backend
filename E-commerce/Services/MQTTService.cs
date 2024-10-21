@@ -64,7 +64,7 @@ namespace E_commerce.Services
             {
                 try
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(2 * retryCount));
+                    await Task.Delay(TimeSpan.FromSeconds(30 * retryCount));
                     await ConnectAsync("ws://localhost:9001", 1883);
                     if (_mqttClient.IsConnected)
                     {

@@ -18,7 +18,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 
 # Copy the Mosquitto configuration file from the project directory
-#COPY C:/Program Files/mosquitto/mosquitto.conf /etc/mosquitto/mosquitto.conf
+COPY C:/Program Files/mosquitto/mosquitto.conf /etc/mosquitto/mosquitto.conf
 
 
 # Create the necessary directories for Mosquitto
@@ -32,4 +32,4 @@ COPY --from=publish /app/publish .
 EXPOSE 80 1883 9001
 
 # Start Mosquitto in the foreground and the .NET application
-CMD mosquitto & dotnet E-commerce.dll
+CMD mosquitto -c /etc/mosquitto/mosquitto.conf & dotnet E-commerce.dll
