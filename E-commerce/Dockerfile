@@ -25,9 +25,6 @@ RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 RUN mkdir -p /run/mosquitto && chown mosquitto:mosquitto /run/mosquitto
 
 # Copy the Mosquitto configuration file from the root directory
-RUN touch /mosquitto.conf
-
-RUN cp mosquitto /mosquitto.conf
 #COPY mosquitto.conf /mosquitto/config/mosquitto.conf
 # Copy the published .NET application
 WORKDIR /app
@@ -37,4 +34,4 @@ COPY --from=publish /app/publish .
 EXPOSE 80 1883 9001
 
 # Start Mosquitto in the foreground and the .NET application
-CMD mosquitto -c /etc/mosquitto/mosquitto.conf & dotnet E-commerce.dll
+CMD mosquitto -c ./mosquitto.conf & dotnet E-commerce.dll
