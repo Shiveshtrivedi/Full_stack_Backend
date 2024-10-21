@@ -35,7 +35,7 @@ namespace E_commerce.Services
         {
             var options = new MqttClientOptionsBuilder()
                 .WithClientId("e_commerce_updates")
-                .WithWebSocketServer(brokerAddress)
+                .WithWebSocketServer("ws://localhost:9001")//WithWebSocketServer(brokerAddress)
                 .WithCleanSession()
                 .Build();
 
