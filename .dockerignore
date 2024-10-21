@@ -26,5 +26,6 @@ README.md
 !**/.gitignore
 !.git/HEAD
 !.git/config
+!E-commerce/mosquitto.conf
 !.git/packed-refs
 !.git/refs/heads/**
