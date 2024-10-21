@@ -23,7 +23,7 @@ RUN pwd
 #RUN ls -la /E-commerce/Configurations
 
 # Copy the Mosquitto configuration file from the project directory
-#COPY src/E-commerce/Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
+COPY /app/publish/Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
 
 
 # Create the necessary directories for Mosquitto
