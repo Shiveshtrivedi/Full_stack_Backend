@@ -28,8 +28,9 @@ RUN ls -la /app/publish/Configurations
 # Copy the Mosquitto configuration file from the project directory
 #COPY /app/publish/Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
 RUN mkdir -p /app/publish/Configurations/mosquitto.conf
+RUN mkdir -p /Configurations/mosquitto.conf
 COPY ./mosquitto.conf  /etc/mosquitto/mosquitto.conf
-COPY /Configurations/mosquitto.conf /app/publish/Configurations/mosquitto.conf
+COPY  /app/publish/Configurations/mosquitto.conf /Configurations/mosquitto.conf
 COPY ./Configurations/mosquitto.conf /app/publish/Configurations/mosquitto.conf
 
 
