@@ -147,7 +147,9 @@ app.UseStaticFiles();
 
 
 var mqttService = app.Services.GetRequiredService<MQTTService>();
-await mqttService.ConnectAsync("ws://localhost:9001", 1883);
+await mqttService.ConnectAsync("ws:
+    
+    localhost:9001", 1883);
 app.Run();
 
 

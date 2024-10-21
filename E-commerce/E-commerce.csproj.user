@@ -6,15 +6,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <!-- Change to 'Library' for a class library -->
-        <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <ImplicitUsings>enable</ImplicitUsings>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="MQTTnet" Version="4.3.7" />
-    </ItemGroup>
-  
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- Change to 'Library' for a class library -->
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NameOfLastUsedPublishProfile>C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\Properties\PublishProfiles\FolderProfile.pubxml</NameOfLastUsedPublishProfile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MQTTnet" Version="4.3.7" />
+  </ItemGroup>
 </Project>
