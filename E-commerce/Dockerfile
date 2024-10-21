@@ -26,7 +26,7 @@ RUN mkdir -p /run/mosquitto && chown mosquitto:mosquitto /run/mosquitto
 
 # Copy the Mosquitto configuration file from the root directory
 
-
+RUN pwd
 COPY mosquitto.conf /mosquitto/config/mosquitto.conf
 # Copy the published .NET application
 WORKDIR /app
