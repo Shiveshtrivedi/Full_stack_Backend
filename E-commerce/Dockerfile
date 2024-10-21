@@ -16,6 +16,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 
 # Install Mosquitto
 RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
+RUN mosquitto
 
 RUN pwd 
 #RUN ls app/publish/
