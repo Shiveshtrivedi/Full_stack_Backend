@@ -31,54 +31,23 @@ namespace E_commerce.Services
             _mqttClient.ApplicationMessageReceivedAsync += OnMessageReceivedAsync;
         }
 
-        // public async Task ConnectAsync(string brokerAddress, int port)
-        // {
-        //     var options = new MqttClientOptionsBuilder()
-        //         .WithClientId("e_commerce_updates")
-        //         .WithWebSocketServer(brokerAddress)
-        //         .WithCleanSession()
-        //         .Build();
+        public async Task ConnectAsync(string brokerAddress, int port)
+        {
+            var options = new MqttClientOptionsBuilder()
+                .WithClientId("e_commerce_updates")
+                .WithWebSocketServer(brokerAddress)
+                .WithCleanSession()
+                .Build();
 
-        //     try
-        //     {
-        //         await _mqttClient.ConnectAsync(options, CancellationToken.None);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError($"Failed to connect to MQTT broker: {ex.Message}");
-        //     }
-        // }
-
-
-
-
-        public async Task ConnectAsync()
-{
-    var brokerAddress = _configuration["MqttSettings:BrokerAddress"];
-    var portString = _configuration["MqttSettings:Port"];
-
-    if (!int.TryParse(portString, out int port))
-    {
-        _logger.LogError("Invalid port number for MQTT: {portString}", portString);
-        throw new ArgumentException("Invalid MQTT port number");
-    }
-
-    var options = new MqttClientOptionsBuilder()
-        .WithClientId("e_commerce_updates")
-        .WithWebSocketServer(brokerAddress)
-        .WithCleanSession()
-        .Build();
-
-    try
-    {
-        await _mqttClient.ConnectAsync(options, CancellationToken.None);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError($"Failed to connect to MQTT broker: {ex.Message}");
-    }
-}
-
+            try
+            {
+                await _mqttClient.ConnectAsync(options, CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to connect to MQTT broker: {ex.Message}");
+            }
+        }
 
         private async Task OnConnectedAsync(MqttClientConnectedEventArgs e)
         {
@@ -99,8 +68,7 @@ namespace E_commerce.Services
                 try
                 {
                     await Task.Delay(TimeSpan.FromSeconds(30 * retryCount));
-                    // await ConnectAsync("ws://localhost:9001", 1883);
-                    await ConnectAsync();
+                    await ConnectAsync("ws://localhost:9001", 1883);
                     if (_mqttClient.IsConnected)
                     {
                         _logger.LogInformation("Reconnected to MQTT broker.");
