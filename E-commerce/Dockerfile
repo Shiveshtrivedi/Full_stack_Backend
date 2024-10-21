@@ -15,7 +15,10 @@ RUN dotnet publish "E-commerce.csproj" -c Release -o /app/publish /p:UseAppHost=
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 
 # Install Mosquitto
-RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
+RUN apt-add-repository ppa:mosquitto-dev/mosquitto-ppa
+RUN apt-get update
+RUN apt-get install mosquitto
+RUN apt-get install mosquitto-clients
 RUN mosquitto
 
 RUN pwd 
