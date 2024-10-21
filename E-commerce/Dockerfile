@@ -18,7 +18,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 
 RUN pwd 
-RUN ls -la 
+#RUN ls -la 
 #RUN ls -la /E-commerce
 #RUN ls -la /E-commerce/Configurations
 
