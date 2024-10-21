@@ -19,8 +19,8 @@ RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 
 RUN pwd 
 RUN ls -la 
-RUN ls -la /E-commerce
-RUN ls -la /E-commerce/Configurations
+#RUN ls -la /E-commerce
+#RUN ls -la /E-commerce/Configurations
 
 # Copy the Mosquitto configuration file from the project directory
 #COPY src/E-commerce/Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
