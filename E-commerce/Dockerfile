@@ -1,8 +1,7 @@
 # Use the SDK image to build the .NET application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-COPY ["E-commerce/E-commerce.csproj", "E-commerce/"]
-RUN dotnet restore "E-commerce/E-commerce.csproj"
+COPY ["./E-commerce.csproj", "E-commerce/"]
+RUN dotnet restore "./E-commerce.csproj"
 COPY . .
 WORKDIR "/src/E-commerce"
 RUN dotnet build "E-commerce.csproj" -c Release -o /app/build
