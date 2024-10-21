@@ -1,30 +1,31 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER app
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
-
-# This stage is used to build the service project
+# Use the SDK image to build the .NET application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["E-commerce/E-commerce.csproj", "E-commerce/"]
-RUN dotnet restore "./E-commerce/E-commerce.csproj"
+RUN dotnet restore "E-commerce/E-commerce.csproj"
 COPY . .
 WORKDIR "/src/E-commerce"
-RUN dotnet build "./E-commerce.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "E-commerce.csproj" -c Release -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
+# Publish the .NET application
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./E-commerce.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "E-commerce.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
-FROM base AS final
+# Use the base image for both .NET and Mosquitto
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
+# Install Mosquitto
+RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
+
+# Copy the published .NET application
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "E-commerce.dll"]
+
+# Copy Mosquitto configuration if you have one
+# COPY mosquitto.conf /etc/mosquitto/mosquitto.conf
+
+# Expose the necessary ports
+EXPOSE 80 1883 9001
+
+# Start Mosquitto and the .NET application
+CMD service mosquitto start && dotnet E-commerce.dll
