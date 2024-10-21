@@ -1,5 +1,5 @@
 # Use the official .NET SDK image as a build environment
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 
 # Set the working directory
 WORKDIR /app
@@ -15,7 +15,7 @@ COPY . ./
 RUN dotnet publish -c Release -o out
 
 # Use the runtime image for the final stage
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
 # Set the working directory in the final image
 WORKDIR /app
@@ -29,4 +29,4 @@ EXPOSE 80
 EXPOSE 9001
 
 # Set the entry point for the application
-ENTRYPOINT ["dotnet", "YourAppName.dll"]
+ENTRYPOINT ["dotnet", "E-commerce.dll"]
