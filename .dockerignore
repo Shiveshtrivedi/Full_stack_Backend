@@ -23,9 +23,6 @@
 **/values.dev.yaml
 LICENSE
 README.md
-!**/.gitignore
-!.git/HEAD
-!.git/config
-!E-commerce/mosquitto.conf
-!.git/packed-refs
-!.git/refs/heads/**
+
+
+!src/E-commerce/Configurations/mosquitto.conf
