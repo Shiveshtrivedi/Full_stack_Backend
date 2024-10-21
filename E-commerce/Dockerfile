@@ -17,15 +17,15 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 # Install Mosquitto
 RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 
+# Create the necessary directories for Mosquitto
+RUN mkdir -p /run/mosquitto && chown mosquitto:mosquitto /run/mosquitto
+
 # Copy the published .NET application
 WORKDIR /app
 COPY --from=publish /app/publish .
 
-# Copy Mosquitto configuration if you have one
-# COPY mosquitto.conf /etc/mosquitto/mosquitto.conf
-
 # Expose the necessary ports
 EXPOSE 80 1883 9001
 
-# Start Mosquitto and the .NET application
-CMD service mosquitto start && dotnet E-commerce.dll
+# Start Mosquitto in the foreground and the .NET application
+CMD mosquitto -c /etc/mosquitto/mosquitto.conf & dotnet E-commerce.dll
