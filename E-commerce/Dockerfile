@@ -23,7 +23,7 @@ RUN ls -la /src/E-commerce
 RUN ls -la /src/E-commerce/Configurations
 
 # Copy the Mosquitto configuration file from the project directory
-COPY Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
+COPY src/E-commerce/Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
 
 
 # Create the necessary directories for Mosquitto
