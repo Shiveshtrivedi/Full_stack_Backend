@@ -17,6 +17,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 # Install Mosquitto
 RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 
+CMD pwd 
+
 # Copy the Mosquitto configuration file from the project directory
 COPY Configurations/mosquitto.conf /etc/mosquitto/mosquitto.conf
 
