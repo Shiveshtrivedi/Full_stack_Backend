@@ -16,6 +16,7 @@ COPY E-commerce/. ./
 #RUN dotnet clean
 #RUN dotnet publish -c Release -o /app/out
 RUN dotnet build --configuration Release --no-restore
+RUN dotnet publish --configuration Release --no-restore -o /app/publish
 
 
 # Stage 2: Create a runtime image with Mosquitto and the .NET application
@@ -31,7 +32,7 @@ RUN apt-get update && \
 WORKDIR /app
 
 # Copy the built application from the previous stage
-COPY --from=build /app/out .
+COPY --from=build /app .
 
 # Expose ports for both the Web API and Mosquitto
 EXPOSE 80 1883 9001
