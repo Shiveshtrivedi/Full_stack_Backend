@@ -1,47 +1,39 @@
-
-# Stage 1: Build the .NET Web API
+# Use the SDK image to build the .NET application
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
 
-# Set the working directory
+# Copy the .csproj and restore dependencies
+COPY ["E-commerce/E-commerce.csproj", "E-commerce/"]
+RUN dotnet restore "E-commerce/E-commerce.csproj"
+
+# Copy the remaining files and build the application
+COPY . .
+WORKDIR "/src/E-commerce"
+RUN dotnet build "E-commerce.csproj" -c Release -o /app/build
+
+# Publish the .NET application
+FROM build AS publish
+RUN dotnet publish "E-commerce.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# Use the runtime image for .NET and install Mosquitto
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+
+# Install Mosquitto and Mosquitto clients
+RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
+
+# Create necessary directories for Mosquitto
+RUN mkdir -p /run/mosquitto && chown mosquitto:mosquitto /run/mosquitto
+
+# Copy the Mosquitto configuration file from the root directory
+#COPY mosquitto.conf /mosquitto/config/mosquitto.conf
+# Copy the published .NET application
 WORKDIR /app
+COPY --from=publish /app/publish .
 
-# Copy the project files
-COPY E-commerce/*.csproj ./
-RUN dotnet restore
-
-# Copy the rest of the application code
-COPY E-commerce/. ./
-
-# Build the application
-#RUN dotnet clean
-#RUN dotnet publish -c Release -o /app/out
-RUN dotnet build --configuration Release --no-restore
-RUN dotnet publish --configuration Release --no-restore -o /app/publish
-
-# Copy the .NET app
-COPY --from=build /app/publish .
-
-
-# Stage 2: Create a runtime image with Mosquitto and the .NET application
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
-
-# Install Mosquitto
-RUN apt-get update && \
-    apt-get install -y mosquitto mosquitto-clients && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Set the working directory for the .NET app
-WORKDIR /app
-
-# Copy the built application from the previous stage
-COPY --from=build /app .
-
-# Expose ports for both the Web API and Mosquitto
+# Expose the necessary ports for both .NET and Mosquitto
 EXPOSE 80 1883 9001
 
-# Copy Mosquitto configuration (optional)
-COPY E-commerce/mosquitto.conf /etc/mosquitto/mosquitto.conf
+# Start Mosquitto in the foreground and the .NET application
 
-# Start both Mosquitto and the .NET application
-CMD ["sh", "-c", "mosquitto -c /etc/mosquitto/mosquitto.conf & dotnet Ecommerce.dll"]
+CMD mosquitto -c E-commerce/mosquitto.conf & dotnet E-commerce.dll
+
