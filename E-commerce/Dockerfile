@@ -6,11 +6,11 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Copy the project files
-COPY *.csproj ./
+COPY E-commerce/*.csproj ./
 RUN dotnet restore
 
 # Copy the rest of the application code
-COPY . ./
+COPY E-commerce/. ./
 
 # Build the application
 RUN dotnet clean
@@ -38,4 +38,4 @@ EXPOSE 80 1883 9001
 COPY E-commerce/mosquitto.conf /etc/mosquitto/mosquitto.conf
 
 # Start both Mosquitto and the .NET application
-CMD ["sh", "-c", "mosquitto -c /etc/mosquitto/mosquitto.conf & dotnet EcommerceApi.dll"]
+CMD ["sh", "-c", "mosquitto -c /etc/mosquitto/mosquitto.conf & dotnet Ecommerce.dll"]
