@@ -39,15 +39,9 @@ COPY --from=publish /app/publish .
 EXPOSE 80 1883 9001
 
 
-# Create an entrypoint script to start both services
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
 # Start Mosquitto in the foreground and the .NET application
 
 
-#CMD mosquitto -c ./mosquitto.conf & dotnet E-commerce.dll
-
-# Start both Mosquitto and the .NET application using the entrypoint script
-ENTRYPOINT ["/entrypoint.sh"]
+CMD mosquitto -c ./mosquitto.conf & dotnet E-commerce.dll
 
