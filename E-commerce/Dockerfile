@@ -21,9 +21,14 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 # Install Mosquitto and Mosquitto clients
 RUN apt-get update && apt-get install -y mosquitto mosquitto-clients
 
+
+
 # Create necessary directories for Mosquitto
 RUN mkdir -p /run/mosquitto && chown mosquitto:mosquitto /run/mosquitto
 
+
+# Copy the Mosquitto configuration file if you have a custom one
+COPY E-commerce/mosquitto.conf /etc/mosquitto/mosquitto.conf
 # Copy the Mosquitto configuration file from the root directory
 #COPY mosquitto.conf /mosquitto/config/mosquitto.conf
 # Copy the published .NET application
@@ -33,7 +38,16 @@ COPY --from=publish /app/publish .
 # Expose the necessary ports for both .NET and Mosquitto
 EXPOSE 80 1883 9001
 
+
+# Create an entrypoint script to start both services
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Start Mosquitto in the foreground and the .NET application
 
-CMD mosquitto -c E-commerce/mosquitto.conf & dotnet E-commerce.dll
+
+#CMD mosquitto -c ./mosquitto.conf & dotnet E-commerce.dll
+
+# Start both Mosquitto and the .NET application using the entrypoint script
+ENTRYPOINT ["/entrypoint.sh"]
 
