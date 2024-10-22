@@ -34,7 +34,7 @@ COPY --from=build /app/out .
 EXPOSE 80 1883 9001
 
 # Copy Mosquitto configuration (optional)
-COPY mosquitto.conf /etc/mosquitto/mosquitto.conf
+COPY E-commerce/mosquitto.conf /etc/mosquitto/mosquitto.conf
 
 # Start both Mosquitto and the .NET application
 CMD ["sh", "-c", "mosquitto -c /etc/mosquitto/mosquitto.conf & dotnet EcommerceApi.dll"]
