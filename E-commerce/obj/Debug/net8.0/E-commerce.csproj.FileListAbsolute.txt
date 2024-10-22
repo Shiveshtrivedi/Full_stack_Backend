@@ -147,3 +147,9 @@ C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\obj\Debug\net8.0\ref
 C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\obj\Debug\net8.0\E-commerce.pdb
 C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\obj\Debug\net8.0\E-commerce.genruntimeconfig.cache
 C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\obj\Debug\net8.0\ref\E-commerce.dll
+C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\Microsoft.Extensions.Caching.Memory.dll
+C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.dll
+C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\Microsoft.Extensions.Logging.dll
+C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\shivesh.trivedi\source\repos\E-commerce\E-commerce\bin\Debug\net8.0\Microsoft.Extensions.Options.dll
