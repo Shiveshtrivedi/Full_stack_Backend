@@ -18,6 +18,9 @@ COPY E-commerce/. ./
 RUN dotnet build --configuration Release --no-restore
 RUN dotnet publish --configuration Release --no-restore -o /app/publish
 
+# Copy the .NET app
+COPY --from=build /app/publish .
+
 
 # Stage 2: Create a runtime image with Mosquitto and the .NET application
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
