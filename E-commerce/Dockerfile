@@ -13,8 +13,10 @@ RUN dotnet restore
 COPY E-commerce/. ./
 
 # Build the application
-RUN dotnet clean
-RUN dotnet publish -c Release -o /app/out
+#RUN dotnet clean
+#RUN dotnet publish -c Release -o /app/out
+RUN dotnet build --configuration Release --no-restore
+
 
 # Stage 2: Create a runtime image with Mosquitto and the .NET application
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
