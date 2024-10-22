@@ -39,9 +39,8 @@ COPY --from=publish /app/publish .
 EXPOSE 80 1883 9001
 
 
-
 # Start Mosquitto in the foreground and the .NET application
 
 
-CMD mosquitto -c ./mosquitto.conf & dotnet E-commerce.dll
+CMD mosquitto -c  /etc/mosquitto/mosquitto.conf & dotnet E-commerce.dll
 
