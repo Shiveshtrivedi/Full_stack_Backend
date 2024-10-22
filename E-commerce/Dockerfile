@@ -13,6 +13,7 @@ RUN dotnet restore
 COPY . ./
 
 # Build the application
+RUN dotnet clean
 RUN dotnet publish -c Release -o out
 
 # Stage 2: Create a runtime image with Mosquitto and the .NET application
