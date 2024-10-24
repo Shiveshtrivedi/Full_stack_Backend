@@ -6,6 +6,9 @@ using E_commerce.Models;
 using Microsoft.EntityFrameworkCore;
 using BCr = BCrypt.Net;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace E_commerce.Services
 {
@@ -14,11 +17,21 @@ namespace E_commerce.Services
     {
         public static string HashPassword(string password)
         {
+            if(string.IsNullOrWhiteSpace(password) || password.Contains(" "))
+            {
+                throw new ArgumentException("Password cannot be null or empty.", nameof(password));
+            }
+
             return BCr.BCrypt.HashPassword(password);
         }
 
         public static bool VerifyPassword(string password, string hashedPassword)
         {
+            if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(hashedPassword))
+            {
+                throw new ArgumentException("Password and hashed password cannot be null or empty.");
+            }
+
             return BCr.BCrypt.Verify(password, hashedPassword);
         }
     }
@@ -27,22 +40,80 @@ namespace E_commerce.Services
     {
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-        public UserServices(DataContext context, IMapper mapper)
+        private readonly MQTTService _mqttService;
+        public UserServices(DataContext context, IMapper mapper, MQTTService mqttService)
         {
             _context = context;
             _mapper = mapper;
+            _mqttService = mqttService;
         }
 
         public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
         {
-            var users = await _context.Users.ToListAsync();
-            var userDTOs = _mapper.Map<IEnumerable<UserDTO>>(users);
+            try
+            {
+                var users = await _context.Users.ToListAsync();
+                var userDTOs = _mapper.Map<IEnumerable<UserDTO>>(users);
 
-            return _mapper.Map<IEnumerable<UserDTO>>(users);
+                return userDTOs;
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("Error retrieving users", ex);
+            }
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return false;
+            }
+
+            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        }
+
+        private bool IsValidUserName(string userName)
+        {
+            if (string.IsNullOrWhiteSpace(userName) || userName.Length < 3 || userName.Length > 15)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         public async Task<UserDTO> CreateUserAsync(UserDTO userDto)
         {
+            var context = new ValidationContext(userDto);
+            var validationResults = new List<ValidationResult>();
+
+            bool isValid = Validator.TryValidateObject(userDto, context, validationResults, true);
+
+            if (!IsValidEmail(userDto.Email))
+            {
+                validationResults.Add(new ValidationResult("Please provide a valid email address."));
+                isValid = false;
+            }
+
+            if (!IsValidUserName(userDto.UserName))
+            {
+                validationResults.Add(new ValidationResult("Username must be between 3 and 15 characters, and cannot be empty or contain only spaces."));
+                isValid = false;
+            }
+
+
+            if (!isValid)
+            {
+                foreach (var validationResult in validationResults)
+                {
+                    Console.WriteLine(validationResult.ErrorMessage);      
+                }
+
+                throw new Exception("Model validation failed");
+            }
+
+
             var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.Email == userDto.Email);
 
             if (existingUser != null)
@@ -59,6 +130,11 @@ namespace E_commerce.Services
             {
                 await _context.Users.AddAsync(user);
                 await _context.SaveChangesAsync();
+
+                var jsonMessage = JsonConvert.SerializeObject(user);
+                await _mqttService.PublishAsync("user/new", jsonMessage);
+                
+                
             }
             catch (Exception ex)
             {
@@ -86,6 +162,17 @@ namespace E_commerce.Services
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
+
+            var userMessage = new
+            {
+                userId = user.UserId,
+                userName = user.UserName,
+                email = user.Email,
+                isAdmin = user.isAdmin
+            };
+
+            var jsonMessage = JsonConvert.SerializeObject(userMessage);
+            await _mqttService.PublishAsync("user/delete", jsonMessage);
 
             return _mapper.Map<UserDTO>(user);
         }
@@ -121,6 +208,17 @@ namespace E_commerce.Services
             try
             {
                 await _context.SaveChangesAsync();
+                var userMessage = new
+                {
+                    userId = existingUser.UserId,
+                    userName = existingUser.UserName,
+                    email = existingUser.Email,
+                    isAdmin = existingUser.isAdmin
+                };
+
+                var jsonMessage = JsonConvert.SerializeObject(userMessage);
+                await _mqttService.PublishAsync("user/update", jsonMessage);
+
             }
             catch (DbUpdateException ex)
             {
@@ -160,6 +258,17 @@ namespace E_commerce.Services
             try
             {
                 await _context.SaveChangesAsync();
+                var userMessage = new
+                {
+                    userId = existingUser.UserId,
+                    userName = existingUser.UserName,
+                    email = existingUser.Email,
+                    isAdmin = existingUser.isAdmin
+                };
+
+                var jsonMessage = JsonConvert.SerializeObject(userMessage);
+                await _mqttService.PublishAsync("user/update", jsonMessage);
+
             }
             catch (DbUpdateException ex)
             {

@@ -1,5 +1,7 @@
-﻿using MQTTnet;
+﻿using E_commerce.Models;
+using MQTTnet;
 using MQTTnet.Client;
+using Newtonsoft.Json;
 using System;
 using System.Text;
 using System.Threading;
@@ -23,9 +25,6 @@ namespace E_commerce.Services
             var brokerAddress = configuration["MqttSettings:BrokerAddress"];
             var port = int.Parse(configuration["MqttSettings:Port"]);
 
-            //  var brokerAddress = configuration["MqttSettings:BrokerAddress"];
-            //    var portString = configuration["MqttSettings:Port"];
-
             _mqttClient.ConnectedAsync += OnConnectedAsync;
             _mqttClient.DisconnectedAsync += OnDisconnectedAsync;
             _mqttClient.ApplicationMessageReceivedAsync += OnMessageReceivedAsync;
@@ -35,7 +34,7 @@ namespace E_commerce.Services
         {
             var options = new MqttClientOptionsBuilder()
                 .WithClientId("e_commerce_updates")
-                .WithWebSocketServer(brokerAddress)//WithWebSocketServer(brokerAddress)
+                .WithWebSocketServer(brokerAddress)
                 .WithCleanSession()
                 .Build();
 
@@ -56,6 +55,10 @@ namespace E_commerce.Services
             await SubscribeAsync("inventory/updates");
             await SubscribeAsync("sales/notifications");
             await SubscribeAsync("inventory/alerts");
+            await SubscribeAsync("product/new");
+            await SubscribeAsync("user/new");
+            await SubscribeAsync("user/delete");
+            await SubscribeAsync("user/update");
         }
 
         private async Task OnDisconnectedAsync(MqttClientDisconnectedEventArgs e)
@@ -107,6 +110,24 @@ namespace E_commerce.Services
                 case "inventory/alerts":
                     HandleStockAlert(messagePayload);
                     break;
+                case "product/new":
+                    HandleNewProduct(messagePayload);
+                    break;
+                case "product/update":
+                    HandleUpdateProduct(messagePayload);
+                    break;
+                case "product/delete":
+                    HandleUpdateProduct(messagePayload);
+                    break;
+                case "user/new":
+                    HandleNewUser(messagePayload);
+                    break;
+                case "user/update":
+                    HandleUserUpdated(messagePayload);
+                    break;
+                case "user/delete":
+                    HandleUserDelete(messagePayload);
+                    break;
                 default:
                     Console.WriteLine("Unknown topic received.");
                     break;
@@ -135,6 +156,31 @@ namespace E_commerce.Services
             _logger.LogInformation($"Stock alert: {payload}");
         }
 
+        private void HandleNewProduct(string payload)
+        {
+            _logger.LogInformation($"New product added: {payload}");
+        }
+        
+        private void HandleDeleteProduct(string payload)
+        {
+            _logger.LogInformation($"New product added: {payload}");
+        }
+        private void HandleUpdateProduct(string payload)
+        {
+            _logger.LogInformation($"product updated: {payload}");
+        }
+        private void HandleNewUser(string payload)
+        {
+            _logger.LogInformation($"New User added: {payload}");
+        }
+        private void HandleUserDelete(string payload)
+        {
+            _logger.LogInformation($"User deleted: {payload}");
+        }
+        private void HandleUserUpdated(string payload)
+        {
+            _logger.LogInformation($"User updated: {payload}");
+        }
 
         public async Task PublishAsync(string topic, string payload)
         {

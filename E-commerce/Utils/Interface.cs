@@ -62,7 +62,7 @@ namespace E_commerce.Utils
 
     public interface IAuthServices
     {
-        Task<bool> SignupAsync(UserDTO userDTO);
+        Task<UserDTO> SignupAsync(UserDTO userDTO);
         Task<UserDTO> LoginAsync(LoginDTO loginDto);
 
     }

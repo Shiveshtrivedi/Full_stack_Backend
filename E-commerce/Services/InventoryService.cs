@@ -209,6 +209,16 @@ namespace E_commerce.Services
                     inventory.StockAvailable += updateStockDto.AdditionalStock;
                 }
 
+                var stockUpdateMessage = new
+                {
+                    ProductId = product.ProductId,
+                    StockAvailable = inventory.StockAvailable,
+                    StockSold = inventory.StockSold
+                };
+
+                var jsonMessage = JsonConvert.SerializeObject(stockUpdateMessage);
+                await _mqttService.PublishAsync("inventory-updates", jsonMessage);
+
                 await _context.SaveChangesAsync();
                 return true;
             }

@@ -35,7 +35,7 @@ builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
 logger.LogInformation($"Server name: {dbServer}");
- logger.LogInformation($"Database name: {dbName}");
+logger.LogInformation($"Database name: {dbName}");
 logger.LogInformation($"Connection string: {connectionString}");
 
 builder.Services.AddAutoMapper(typeof(Program));
@@ -58,7 +58,7 @@ builder.Services.AddSingleton<MQTTService>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
-        builder => builder.WithOrigins("http://localhost:3000", "http://localhost:5086")
+        builder => builder.WithOrigins("http://localhost:3000", "http://localhost:5086", "https://localhost:7145")
                           .AllowAnyHeader()
                           .AllowAnyMethod());
 });
@@ -66,8 +66,6 @@ builder.Services.AddCors(options =>
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
-
-Console.WriteLine($"key {key}");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -143,7 +141,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.UseStaticFiles();
+app.UseStaticFiles();//serve for static css,js file or image 
 
 
 var mqttService = app.Services.GetRequiredService<MQTTService>();
