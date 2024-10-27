@@ -1,0 +1,6 @@
+services:
+  e-commerce:
+    image: ${DOCKER_REGISTRY-}ecommerce
+    build:
+      context: .
+      dockerfile: E-commerce/Dockerfile

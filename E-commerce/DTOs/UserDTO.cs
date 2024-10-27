@@ -6,10 +6,11 @@ namespace E_commerce.DTOs
     public class UserDTO
     {
         public int UserId { get; set; }
+        [ComplexityAttribute(ValidateUserName =true)]
         public string UserName { get; set; } = string.Empty;
+        [ComplexityAttribute(ValidateEmail = true)]
         public string Email { get; set; } = string.Empty;
-
-        [PasswordComplexity]
+        [ComplexityAttribute(ValidatePassword =true)]
         public string? Password { get; set; } = string.Empty;
         public bool isAdmin { get; set; } = false;
         public string? Token { get; set; }

@@ -28,13 +28,21 @@ namespace E_commerce.Controllers
         [HttpPost("signup")]
         public async Task<IActionResult> Signup([FromBody] UserDTO userDTO)
         {
-            var result = await _authServices.SignupAsync(userDTO);
-            if (result)
-                return Ok("signup successful");
+            try
+            {
+                var result = await _authServices.SignupAsync(userDTO);
 
-            return BadRequest("User Already registered");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    message = ex.Message
+                });
+            }
         }
-
+  
 
 
         [AllowAnonymous]

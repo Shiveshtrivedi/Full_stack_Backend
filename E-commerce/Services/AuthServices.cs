@@ -6,6 +6,7 @@ using E_commerce.Utils;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -19,17 +20,20 @@ namespace E_commerce.Services
         private readonly DataContext _context;
         private readonly IMapper _mapper;
         private readonly IConfiguration _configuration;
+        private readonly MQTTService _mqttService;
 
-        public AuthServices(DataContext context, IMapper mapper, IConfiguration configuration)
+        public AuthServices(DataContext context, IMapper mapper, IConfiguration configuration, MQTTService mqttService)
         {
             _context = context;
             _mapper = mapper;
             _configuration = configuration;
+            _mqttService = mqttService;
         }
         public static bool VerifyPassword(string password, string hashedPassword)
         {
             return BCr.BCrypt.Verify(password, hashedPassword);
         }
+
 
         private string IssueToken(UserDTO userDto)
         {
@@ -53,13 +57,13 @@ namespace E_commerce.Services
         }
 
 
-        public async Task<bool> SignupAsync(UserDTO userDTO)
+        public async Task<UserDTO> SignupAsync(UserDTO userDTO)
         {
             var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.Email == userDTO.Email);
 
             if (existingUser != null)
             {
-                return false;
+                throw new Exception("User already exists.");
             }
 
             bool isAdmin = userDTO.Email.EndsWith("@intimetec.com", StringComparison.OrdinalIgnoreCase);
@@ -78,7 +82,26 @@ namespace E_commerce.Services
             {
                 _context.Users.Add(newUser);
                 await _context.SaveChangesAsync();
-                return true;
+
+                var userMessage = new 
+                {
+                    userId = newUser.UserId,
+                    userName = newUser.UserName,
+                    email = newUser.Email,
+                    password = newUser.Password,
+                    isAdmin = newUser.isAdmin
+                };
+                var jsonMessage = JsonConvert.SerializeObject(userMessage);
+                await _mqttService.PublishAsync("user/new", jsonMessage);
+               
+
+                var userResponse = new UserDTO
+                {
+                    UserName = newUser.UserName,
+                    Email = newUser.Email,
+                    isAdmin = newUser.isAdmin
+                };
+                return userResponse;
             }
             catch (Exception ex)
             {
@@ -150,8 +173,6 @@ namespace E_commerce.Services
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
-
 
     }
 }

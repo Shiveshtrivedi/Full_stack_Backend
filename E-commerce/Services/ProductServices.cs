@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Razorpay.Api;
 
 namespace E_commerce.Services
 {
@@ -21,23 +22,23 @@ namespace E_commerce.Services
             _mqttService = mqttService;
         }
 
-        public async Task<IEnumerable<Product>> GetAllProductsAsync()
+        public async Task<IEnumerable<Models.Product>> GetAllProductsAsync()
         {
             try
             {
                 return await _context.Products.Where(p => !p.DeleteFlag).ToListAsync();
             }
-            catch (Exception ex)
+            catch (DbUpdateException ex)
             {
-                throw new Exception("An error occurred while retrieving products.", ex);
+                throw new Exception("An error occurred while retrieving products from database.", ex);
             }
         }
 
-        public async Task<Product> CreateProductAsync(ProductDTO productDTO, int userId)
+        public async Task<Models.Product> CreateProductAsync(ProductDTO productDTO, int userId)
         {
             try
             {
-                var product = new Product
+                var product = new Models.Product
                 {
                     ProductName = productDTO.ProductName,
                     ProductDescription = productDTO.ProductDescription,
@@ -66,11 +67,19 @@ namespace E_commerce.Services
                 await _context.Histories.AddAsync(history);
                 await _context.SaveChangesAsync();
 
-                var productMessage = new
+                var productMessage = new 
                 {
-                    ProductId = product.ProductId,
-                    ProductName = product.ProductName,
-                    Stock = product.Stock
+                    productId = product.ProductId,
+                    productName = productDTO.ProductName,
+                    productDescription = productDTO.ProductDescription,
+                    image = productDTO.Image,
+                    price = productDTO.Price,
+                    stock = productDTO.Stock,
+                    category = productDTO.Category,
+                    rating = productDTO.Rating,
+                    costPrice = productDTO.CostPrice,
+                    sellingPrice = productDTO.SellingPrice,
+                    userId = userId
                 };
 
                 var jsonMessage = JsonConvert.SerializeObject(productMessage);
@@ -84,15 +93,15 @@ namespace E_commerce.Services
             }
         }
 
-        public async Task<List<Product>> AddProductsAsync(List<ProductDTO> productDtos)
+        public async Task<List<Models.Product>> AddProductsAsync(List<ProductDTO> productDtos)
         {
             try
             {
-                var products = new List<Product>();
+                var products = new List<Models.Product>();
 
                 foreach (var productDto in productDtos)
                 {
-                    var product = new Product
+                    var product = new Models.Product
                     {
                         ProductName = productDto.ProductName,
                         ProductDescription = productDto.ProductDescription,
@@ -137,7 +146,7 @@ namespace E_commerce.Services
             }
         }
 
-        public async Task<Product> GetProductByIdAsync(int id)
+        public async Task<Models.Product> GetProductByIdAsync(int id)
         {
             try
             {
@@ -150,7 +159,7 @@ namespace E_commerce.Services
             }
         }
 
-        public async Task<IEnumerable<Product>> GetProductByUserIdAsync(int userId)
+        public async Task<IEnumerable<Models.Product>> GetProductByUserIdAsync(int userId)
         {
             try
             {
@@ -165,7 +174,7 @@ namespace E_commerce.Services
             }
         }
 
-        public async Task<Product> UpdateProductAsync(ProductDTO productDto, int id)
+        public async Task<Models.Product> UpdateProductAsync(ProductDTO productDto, int id)
         {
             try
             {
@@ -189,6 +198,19 @@ namespace E_commerce.Services
                 }
 
                 await _context.SaveChangesAsync();
+                var productMessage = new
+                {
+                    productId = findProduct.ProductId,
+                    productName = findProduct.ProductName,
+                    productDescription = findProduct.ProductDescription,
+                    price = findProduct.Price,
+                    stock = findProduct.Stock,
+                    category = findProduct.Category,
+                };
+
+                var jsonMessage = JsonConvert.SerializeObject(productMessage);
+                await _mqttService.PublishAsync("product/update", jsonMessage);
+
                 return findProduct;
             }
             catch (Exception ex)
@@ -197,7 +219,7 @@ namespace E_commerce.Services
             }
         }
 
-        public async Task<Product> DeleteProductAsync(int id)
+        public async Task<Models.Product> DeleteProductAsync(int id)
         {
             try
             {
@@ -214,6 +236,20 @@ namespace E_commerce.Services
                 {
                     await DeleteProductAndHistory(history.HistoryId, id);
                 }
+
+                var productMessage = new
+                {
+                    productId = findProduct.ProductId,
+                    productName = findProduct.ProductName,
+                    productDescription = findProduct.ProductDescription,
+                    price = findProduct.Price,
+                    stock = findProduct.Stock,
+                    category = findProduct.Category,
+                };
+
+                var jsonMessage = JsonConvert.SerializeObject(productMessage);
+                await _mqttService.PublishAsync("product/delete", jsonMessage);
+
 
                 return findProduct;
             }
