@@ -128,6 +128,9 @@ namespace E_commerce.Services
                 case "user/delete":
                     HandleUserDelete(messagePayload);
                     break;
+                case "revenue-updates":
+                    HandleRevenueUpdate(messagePayload);
+                    break;
                 default:
                     Console.WriteLine("Unknown topic received.");
                     break;
@@ -149,6 +152,10 @@ namespace E_commerce.Services
         private void HandleSalesNotification(string payload)
         {
             _logger.LogInformation($"Sales notification received: {payload}");
+        }
+        private void HandleRevenueUpdate(string payload)
+        {
+            _logger.LogInformation($"Revenue notification    received: {payload}");
         }
 
         private void HandleStockAlert(string payload)
