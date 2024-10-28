@@ -138,6 +138,7 @@ namespace E_commerce.Services
                 }
 
                 var updatedProducts = new List<ProductSaleDTO>();
+                var totalQuantitySold = 0;
 
                 var user = await _context.Users.FindAsync(order.UserId);
                 var userName = user?.UserName ?? string.Empty;
@@ -181,19 +182,31 @@ namespace E_commerce.Services
 
                     _context.Sales.Add(sale);
 
+                    totalQuantitySold += orderDetail.Quantity;
+
                     var salesPayload = new
                     {
                         SaleId = sale.SalesId,
                         orderId = sale.OrderId,
-                        userId = sale.UserId,
+                        userId = 0,
                         userName = userName,
                         saleDate = sale.SaleDate,
                         startDate = sale.StartDate,
                         endDate = sale.EndDate,
                         totalAmount = sale.TotalAmount,
-                        productName = product?.ProductName
+                        productName = product?.ProductName,
+                        totalProductsSold = totalQuantitySold
                     };
                     await _mqttService.PublishAsync("sales-updates", JsonConvert.SerializeObject(salesPayload));
+
+                    var revenuePayload = new
+                    {
+                      
+                        saleDate = sale.SaleDate,
+                        totalAmount = sale.TotalAmount,
+                    };
+                    await _mqttService.PublishAsync("revenue-updates", JsonConvert.SerializeObject(salesPayload));
+
 
 
 
